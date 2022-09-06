@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Bookstore_mobile_app",
+    "slug": "Bookstore_mobile_app",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
