@@ -1,10 +1,13 @@
 {
   "expo": {
-    "name": "Bookstore_mobile_app",
-    "slug": "Bookstore_mobile_app",
+    "name": "Bookstore",
+    "slug": "Bookstore",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "android": {
+      "package": "com.yagua.Bookstore_mobile_app"
+    }
   }
 }
