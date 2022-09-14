@@ -12,10 +12,11 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
+import * as Animatable from 'react-native-animatable';
 
 let logo = require('../assets/book_logo_transparent.png');
 
-const SignInScreen = () => {
+const SignInScreen = ({ navigation }) => {
     let [username, setUserName] = useState('');
     let [password, setPassword] = useState('');
     let [visiblePassword, setVisiblePassword] = useState(false);
@@ -30,14 +31,14 @@ const SignInScreen = () => {
         <View style={styles.container}>
             <StatusBar barStyle="default" />
             <View style={styles.header}>
-                <Image style={styles.logo} source={logo} />
+                <Image style={styles.logo} source={logo} resizeMode="contain" />
                 <Text style={styles.title}>Bookstore App</Text>
             </View>
 
-            <View style={styles.footer}>
+            <Animatable.View animation="fadeInUpBig" style={styles.footer}>
                 <Text style={styles.text_footer}>Username</Text>
                 <View style={styles.action}>
-                    <FontAwesome name="user-o" size={20} color="#1E2533" />
+                    <FontAwesome name="at" size={20} color="#1E2533" />
                     <TextInput
                         style={styles.textInput}
                         placeholder="Your username"
@@ -68,6 +69,7 @@ const SignInScreen = () => {
                 <View style={styles.button}>
                     <TouchableOpacity style={styles.signIn}
                         disabled={!allowLogin}
+                        onPress={() => {}}
                     >
                         <LinearGradient
                             colors={allowLogin
@@ -86,6 +88,7 @@ const SignInScreen = () => {
                                 borderColor: '#5485BE',
                             },
                         ]}
+                        onPress={() => navigation.navigate("SignUpScreen")}
                     >
                         <Text style={[styles.textSign, { color: '#5485BE' }]}>
                             Sign Up
@@ -102,7 +105,7 @@ const SignInScreen = () => {
                 >
                     <Text style={{ color: '#2C3D55' }}>Forgot password?</Text>
                 </TouchableOpacity>
-            </View>
+            </Animatable.View>
         </View>
     );
 };
@@ -128,8 +131,8 @@ const styles = StyleSheet.create({
         paddingVertical: 25,
     },
     logo: {
-        width: '70%',
-        height: '60%',
+        width: '100%',
+        height: '80%',
     },
     title: {
         color: '#ffffff',
