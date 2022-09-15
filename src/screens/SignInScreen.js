@@ -7,6 +7,7 @@ import {
     Platform,
     TouchableOpacity,
     StatusBar,
+    Alert
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
@@ -14,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import * as Animatable from 'react-native-animatable';
 
-let logo = require('../assets/book_logo_transparent.png');
+let logo = require('../assets/images/book_logo_transparent.png');
 
 const SignInScreen = ({ navigation }) => {
     let [username, setUserName] = useState('');
@@ -69,7 +70,9 @@ const SignInScreen = ({ navigation }) => {
                 <View style={styles.button}>
                     <TouchableOpacity style={styles.signIn}
                         disabled={!allowLogin}
-                        onPress={() => {}}
+                        onPress={() => {
+                            Alert.alert("Title", "Foo bar")
+                        }}
                     >
                         <LinearGradient
                             colors={allowLogin

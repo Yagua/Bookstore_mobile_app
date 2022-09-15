@@ -11,8 +11,10 @@ import {
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as Animatable from 'react-native-animatable';
+
+import ModalComponent from '../components/ModalComponent'
 
 const SignUpScreen = ({navigation}) => {
     let [username, setUserName] = useState('');
@@ -25,6 +27,15 @@ const SignUpScreen = ({navigation}) => {
     let [confirmPassword, setConfirmPassword] = useState('');
 
     let [visiblePassword, setVisiblePassword] = useState(false);
+    let [visibleConfirmPassword, setVisibleConfirmPassword] = useState(false);
+    let [modalVisible, setModalVisible] = useState(false);
+    let [modalSettings, setModalSettings] = useState({
+        title: '',
+        body: '',
+        acceptButtonTitle: '',
+        cancelButtonTitle: '',
+        isAlert: false
+    })
 
     let data = {
         username: username,
@@ -36,10 +47,6 @@ const SignUpScreen = ({navigation}) => {
         password: password,
         confirmPassword: confirmPassword,
     }
-
-    const updatePasswordVisibily = () => {
-        setVisiblePassword(!visiblePassword);
-    };
 
     let allowRegister =
         username.trim().length > 0 &&
@@ -59,9 +66,32 @@ const SignUpScreen = ({navigation}) => {
     }
 
     const goBack = () => {
+        setModalSettings({
+            ...modalSettings,
+            title: "Caution",
+            body: "You will lose all data entered so far. Do you want to continue?",
+            acceptButtonTitle: "Accept",
+            cancelButtonTitle: "Cancel",
+            isAlert: false
+        })
         let formEmpty = checkFormValues()
         if(formEmpty) navigation.navigate("SignInScreen")
-        else console.log("the form is not empty (display modal)")
+        else setModalVisible(true)
+    }
+
+    const signUp = () => {
+        if(data.password !== data.confirmPassword) {
+            setModalSettings({
+                ...modalSettings,
+                title: "Alert",
+                body: "The given passwords do not match.",
+                cancelButtonTitle: "Okay",
+                isAlert: true
+            })
+            setModalVisible(true)
+            return
+        }
+        console.log("well")
     }
 
     return (
@@ -82,8 +112,19 @@ const SignUpScreen = ({navigation}) => {
                 </Text>
             </View>
 
+            <ModalComponent
+                title={modalSettings.title}
+                body={modalSettings.body}
+                isAlert={modalSettings.isAlert}
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                acceptAction={() => {navigation.navigate('SignInScreen')}}
+                acceptButtonTitle={modalSettings.acceptButtonTitle}
+                cancelButtonTitle={modalSettings.cancelButtonTitle}
+            />
+
             <Animatable.View animation="fadeInUpBig" style={styles.footer}>
-                <ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <Text style={styles.text_footer}>Username</Text>
                     <View style={styles.action}>
                         <FontAwesome name="at" size={20} color="#1E2533" />
@@ -155,7 +196,9 @@ const SignUpScreen = ({navigation}) => {
                             secureTextEntry={!visiblePassword}
                             onChangeText={(value) => setPassword(value)}
                         />
-                        <TouchableOpacity onPress={updatePasswordVisibily}>
+                        <TouchableOpacity onPress={() => {
+                            setVisiblePassword(!visiblePassword)
+                        }}>
                             {visiblePassword ? (
                                 <Feather name="eye" size={15} color="#1E2533" />
                             ) : (
@@ -172,11 +215,13 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Confirm password"
-                            secureTextEntry={!visiblePassword}
+                            secureTextEntry={!visibleConfirmPassword}
                             onChangeText={(value) => setConfirmPassword(value)}
                         />
-                        <TouchableOpacity onPress={updatePasswordVisibily}>
-                            {visiblePassword ? (
+                        <TouchableOpacity onPress={() => {
+                            setVisibleConfirmPassword(!visibleConfirmPassword)
+                        }}>
+                            {visibleConfirmPassword ? (
                                 <Feather name="eye" size={15} color="#1E2533" />
                             ) : (
                                 <Feather name="eye-off" size={15} color="#1E2533" />
@@ -187,7 +232,7 @@ const SignUpScreen = ({navigation}) => {
                     <View style={styles.button}>
                         <TouchableOpacity style={styles.signIn}
                             disabled={!allowRegister}
-                            onPress={() => {}}
+                            onPress={signUp}
                         >
                             <LinearGradient
                                 colors={allowRegister

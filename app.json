@@ -6,8 +6,13 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "icon": "./src/assets/images/icons/ic_launcher_round.png",
     "android": {
-      "package": "com.yagua.Bookstore_mobile_app"
+      "package": "com.yagua.Bookstore_mobile_app",
+      "adaptiveIcon": {
+          "foregroundImage": "./src/assets/images/icons/ic_launcher_foreground.png",
+          "backgroundColor": "#FFF"
+      }
     }
   }
 }
