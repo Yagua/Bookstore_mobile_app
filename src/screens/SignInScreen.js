@@ -7,13 +7,14 @@ import {
     Platform,
     TouchableOpacity,
     StatusBar,
-    Alert
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import * as Animatable from 'react-native-animatable';
+
+import { AuthContext } from "../context/AuthContext";
 
 let logo = require('../assets/images/book_logo_transparent.png');
 
@@ -21,12 +22,21 @@ const SignInScreen = ({ navigation }) => {
     let [username, setUserName] = useState('');
     let [password, setPassword] = useState('');
     let [visiblePassword, setVisiblePassword] = useState(false);
+    let { signIn } = useContext(AuthContext)
 
     const updatePasswordVisibily = () => {
         setVisiblePassword(!visiblePassword);
     };
 
     let allowLogin = username.trim().length > 0 && password.length > 0
+
+    const handleLogin = () => {
+        let testTokens = {
+            "access": "shtq-80o8utshoeuntho",
+            "refresh": "qqjkoe08-898aoeu-ae",
+        }
+        signIn(testTokens)
+    }
 
     return (
         <View style={styles.container}>
@@ -71,7 +81,7 @@ const SignInScreen = ({ navigation }) => {
                     <TouchableOpacity style={styles.signIn}
                         disabled={!allowLogin}
                         onPress={() => {
-                            Alert.alert("Title", "Foo bar")
+                            handleLogin()
                         }}
                     >
                         <LinearGradient
@@ -127,7 +137,7 @@ const styles = StyleSheet.create({
     },
     footer: {
         flex: Platform.OS === 'ios' ? 3 : 2,
-        backgroundColor: '#DAE3E5',
+        backgroundColor: '#ffffff',
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         paddingHorizontal: 28,
@@ -174,7 +184,7 @@ const styles = StyleSheet.create({
     textSign: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#DAE3E5',
+        color: '#ffffff',
     },
 });
 

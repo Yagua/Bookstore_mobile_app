@@ -104,7 +104,7 @@ const SignUpScreen = ({navigation}) => {
                     <FontAwesome
                         name="chevron-circle-left"
                         size={30}
-                        color="#DAE3E5"
+                        color="#ffffff"
                     />
                 </TouchableOpacity>
                 <Text style={styles.title}>
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     },
     footer: {
         flex: 4,
-        backgroundColor: '#DAE3E5',
+        backgroundColor: '#ffffff',
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         paddingHorizontal: 28,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     textSign: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#DAE3E5',
+        color: '#ffffff',
     },
 });
 
