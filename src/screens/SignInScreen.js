@@ -16,7 +16,7 @@ import * as Animatable from 'react-native-animatable';
 
 import { AuthContext } from "../context/AuthContext";
 
-let logo = require('../assets/images/book_logo_transparent.png');
+let logo = require('../assets/images/logoTransparent.png');
 
 const SignInScreen = ({ navigation }) => {
     let [username, setUserName] = useState('');
@@ -39,7 +39,11 @@ const SignInScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <LinearGradient
+            style={styles.container}
+            colors={['#507DBC', '#5485BE']}
+            start={{x: 1.2, y: 0.1}}
+        >
             <StatusBar barStyle="default" />
             <View style={styles.header}>
                 <Image style={styles.logo} source={logo} resizeMode="contain" />
@@ -87,7 +91,7 @@ const SignInScreen = ({ navigation }) => {
                         <LinearGradient
                             colors={allowLogin
                                 ? ['#58A1E8', '#5485BE']
-                                : ["#829193", "#75777B"]}
+                                : ["#949EA0", "#75777B"]}
                             style={styles.signIn}
                         >
                             <Text style={styles.textSign}>Sign In</Text>
@@ -98,12 +102,12 @@ const SignInScreen = ({ navigation }) => {
                         style={[ styles.signIn, {
                                 marginTop: 10,
                                 borderWidth: 2,
-                                borderColor: '#5485BE',
+                                borderColor: '#507DBC',
                             },
                         ]}
                         onPress={() => navigation.navigate("SignUpScreen")}
                     >
-                        <Text style={[styles.textSign, { color: '#5485BE' }]}>
+                        <Text style={[styles.textSign, { color: '#507DBC' }]}>
                             Sign Up
                         </Text>
                     </TouchableOpacity>
@@ -119,21 +123,20 @@ const SignInScreen = ({ navigation }) => {
                     <Text style={{ color: '#2C3D55' }}>Forgot password?</Text>
                 </TouchableOpacity>
             </Animatable.View>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#2C3D55',
     },
     header: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingBottom: 25,
+        padding: 25,
     },
     footer: {
         flex: Platform.OS === 'ios' ? 3 : 2,
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
         paddingVertical: 25,
     },
     logo: {
-        width: '100%',
+        width: '60%',
         height: '80%',
     },
     title: {

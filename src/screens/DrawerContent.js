@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
     useTheme,
@@ -13,6 +13,7 @@ import {
 } from 'react-native-paper';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { AuthContext } from '../context/AuthContext';
 
@@ -20,21 +21,26 @@ const defaultProfileImage = require("../assets/images/defaultUser.png")
 
 
 const DrawerContent = (props) => {
-    const paperTheme = useTheme();
+    let { signOut } = React.useContext(AuthContext)
+    let [selectedId, setSelectedId] = useState(null);
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, marginTop: "-2%" }}>
             <DrawerContentScrollView {...props}>
                 <View style={styles.drawerContent}>
-                    <View style={styles.userInfoSection}>
-                        <View style={{ flexDirection: 'row' }}>
+                    <LinearGradient 
+                        colors={['#507DBC', '#5485BE', "#5C8DC7"]}
+                        start={{x: 0.5, y: 1.2}}
+                        style={styles.userInfoSection}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: "center" }}>
                             <Avatar.Image
                                 source={defaultProfileImage}
-                                size={50}
+                                size={70}
                             />
                             <View
                                 style={{
-                                    marginLeft: 15,
+                                    marginLeft: 18,
                                     flexDirection: 'column',
                                 }}
                             >
@@ -42,7 +48,7 @@ const DrawerContent = (props) => {
                                 <Caption style={styles.caption}>@yagua</Caption>
                             </View>
                         </View>
-                    </View>
+                    </LinearGradient>
 
                     <Drawer.Section style={styles.drawerSection}>
                         <DrawerItem
@@ -61,12 +67,12 @@ const DrawerContent = (props) => {
                         <DrawerItem
                             icon={({ color, size }) => (
                                 <Icon
-                                    name="cart"
+                                    name="account"
                                     color={color}
                                     size={size}
                                 />
                             )}
-                            label="Shopping Cart"
+                            label="Profile"
                             onPress={() => {
                                 props.navigation.navigate('Profile');
                             }}
@@ -74,33 +80,20 @@ const DrawerContent = (props) => {
                         <DrawerItem
                             icon={({ color, size }) => (
                                 <Icon
-                                    name="cogs"
+                                    name="cart"
                                     color={color}
                                     size={size}
                                 />
                             )}
-                            label="Settings"
+                            label="Shopping Cart"
                             onPress={() => {
-                                props.navigation.navigate('SettingsScreen');
-                            }}
-                        />
-                        <DrawerItem
-                            icon={({ color, size }) => (
-                                <Icon
-                                    name="account-check-outline"
-                                    color={color}
-                                    size={size}
-                                />
-                            )}
-                            label="Support"
-                            onPress={() => {
-                                props.navigation.navigate('SupportScreen');
+                                props.navigation.navigate('ShoppingCart');
                             }}
                         />
                     </Drawer.Section>
                 </View>
             </DrawerContentScrollView>
-            <Drawer.Section style={styles.bottomDrawerSection}>
+            <View style={styles.bottomDrawerSection}>
                 <DrawerItem
                     icon={({ color, size }) => (
                         <Icon name="exit-to-app" color={color} size={size} />
@@ -110,7 +103,7 @@ const DrawerContent = (props) => {
                         signOut();
                     }}
                 />
-            </Drawer.Section>
+            </View>
         </View>
     );
 };
@@ -120,17 +113,21 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     userInfoSection: {
+        justifyContent: "center",
+        backgroundColor: "red",
+        paddingVertical: 30,
         paddingLeft: 20,
-        marginTop: 20,
     },
     title: {
-        fontSize: 16,
+        fontSize: 18,
         marginTop: 3,
         fontWeight: 'bold',
+        color: "#ffffff"
     },
     caption: {
         fontSize: 14,
         lineHeight: 14,
+        color: "#DAE3E5"
     },
     row: {
         marginTop: 20,
@@ -150,7 +147,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     bottomDrawerSection: {
-        marginBottom: 15,
+        paddingVertical: 10,
         borderTopColor: '#DAE3E5',
         borderTopWidth: 1,
     },

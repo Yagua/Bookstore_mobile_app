@@ -95,7 +95,11 @@ const SignUpScreen = ({navigation}) => {
     }
 
     return (
-        <View style={styles.container}>
+        <LinearGradient
+            style={styles.container}
+            colors={['#507DBC', '#5485BE']}
+            start={{x: 1.2, y: 0.1}}
+        >
             <StatusBar barStyle="default" />
             <View style={styles.header}>
                 <TouchableOpacity
@@ -248,26 +252,25 @@ const SignUpScreen = ({navigation}) => {
                             style={[ styles.signIn, {
                                     marginVertical: 10,
                                     borderWidth: 2,
-                                    borderColor: '#5485BE',
+                                    borderColor: '#507DBC',
                                 },
                             ]}
                             onPress={goBack}
                         >
-                            <Text style={[styles.textSign, { color: '#5485BE' }]}>
+                            <Text style={[styles.textSign, { color: '#507DBC' }]}>
                                 Cancel
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
             </Animatable.View>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#2C3D55',
     },
     header: {
         flexDirection: "row",

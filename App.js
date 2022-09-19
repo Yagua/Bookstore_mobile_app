@@ -7,6 +7,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Text, View, ActivityIndicator } from 'react-native'
 
 import HomeScreen from './src/screens/HomeScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import ShoppingCartScreen from './src/screens/ShoppingCartScreen';
 import DrawerContent from './src/screens/DrawerContent';
 
 const Drawer = createDrawerNavigator();
@@ -48,6 +50,9 @@ export default function App() {
         signIn: async (value) => {
             dispatch({type: "LOGIN", tokens: value})
         },
+        signOut: async () => {
+            dispatch({type: "LOGOUT", tokens: null})
+        }
     }), []);
 
     // if(loginState.isLoading){
@@ -64,6 +69,8 @@ export default function App() {
                 {loginState.userTokens !== null ? (
                     <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />}>
                         <Drawer.Screen name="Home" component={HomeScreen}/>
+                        <Drawer.Screen name="Profile" component={ProfileScreen}/>
+                        <Drawer.Screen name="ShoppingCart" component={ShoppingCartScreen}/>
                     </Drawer.Navigator>
                   )
                 :
