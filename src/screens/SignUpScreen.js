@@ -104,6 +104,7 @@ const SignUpScreen = ({navigation}) => {
             <View style={styles.header}>
                 <TouchableOpacity
                     onPress={goBack}
+                    activeOpacity={0.5}
                 >
                     <FontAwesome
                         name="chevron-circle-left"
@@ -237,6 +238,7 @@ const SignUpScreen = ({navigation}) => {
                         <TouchableOpacity style={styles.signIn}
                             disabled={!allowRegister}
                             onPress={signUp}
+                            activeOpacity={0.8}
                         >
                             <LinearGradient
                                 colors={allowRegister
@@ -256,6 +258,7 @@ const SignUpScreen = ({navigation}) => {
                                 },
                             ]}
                             onPress={goBack}
+                            activeOpacity={0.5}
                         >
                             <Text style={[styles.textSign, { color: '#507DBC' }]}>
                                 Cancel

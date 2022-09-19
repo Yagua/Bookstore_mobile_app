@@ -74,7 +74,10 @@ const SignInScreen = ({ navigation }) => {
                             secureTextEntry={!visiblePassword}
                             onChangeText={(value) => setPassword(value)}
                         />
-                        <TouchableOpacity onPress={updatePasswordVisibily}>
+                        <TouchableOpacity
+                            onPress={updatePasswordVisibily}
+                            activeOpacity={0.8}
+                        >
                             {visiblePassword ? (
                                 <Feather name="eye" size={15} color="#1E2533" />
                             ) : (
@@ -89,6 +92,7 @@ const SignInScreen = ({ navigation }) => {
                             onPress={() => {
                                 handleLogin()
                             }}
+                            activeOpacity={0.8}
                         >
                             <LinearGradient
                                 colors={allowLogin
@@ -108,6 +112,7 @@ const SignInScreen = ({ navigation }) => {
                                 },
                             ]}
                             onPress={() => navigation.navigate("SignUpScreen")}
+                            activeOpacity={0.5}
                         >
                             <Text style={[styles.textSign, { color: '#507DBC' }]}>
                                 Sign Up

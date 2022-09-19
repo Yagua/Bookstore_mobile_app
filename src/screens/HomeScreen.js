@@ -16,10 +16,10 @@ import {ImageSlider} from 'react-native-image-slider-banner'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Badge } from "@rneui/themed";
 
-import {books} from '../../_testdata/books'
+import BookComponent from '../components/BookComponent'
+import {books} from '../../_testdata/data'
 
 const windowWidth = Dimensions.get('window').width;
-
 
 const HomeScreen = ({ navigation }) => {
 
@@ -49,6 +49,7 @@ const HomeScreen = ({ navigation }) => {
                             width: '90%',
                             justifyContent: "center"
                         }}
+                        activeOpacity={0.5}
                     >
                         <Text style={{color: "#ffffff"}}>Search</Text>
                     </TouchableOpacity>
@@ -62,7 +63,10 @@ const HomeScreen = ({ navigation }) => {
                             color: "#ffffff"
                         }}
                     />*/}
-                    <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                    <TouchableOpacity
+                        onPress={() => navigation.openDrawer()}
+                        activeOpacity={0.5}
+                    >
                         <ImageBackground
                             source={require('../assets/images/defaultUser.png')}
                             style={{ width: 35, height: 35 }}
@@ -71,8 +75,9 @@ const HomeScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </LinearGradient>
+
             {!loaded ? (
-                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
                     <ActivityIndicator size="large"/>
                 </View>
             )
@@ -119,6 +124,7 @@ const HomeScreen = ({ navigation }) => {
                             borderRadius: 20,
                         }}
                     />
+
                     <View style={styles.section}>
                         <View style={styles.headerSection}>
                             <Text style={{ fontSize: 20, fontWeight: "bold"}}>
@@ -133,63 +139,24 @@ const HomeScreen = ({ navigation }) => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+
+                        <ScrollView
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                        >
                             {(new Array(40).fill(undefined)).map((_, index) => (
-                                <TouchableOpacity key={`${index}-t1`}>
-                                    <View
-                                        style={{
-                                            height: 150,
-                                            width: 100,
-                                            marginRight: 10
-                                        }}
-                                        key={index}
-                                    >
-                                    <ImageBackground
-                                        source={require("../assets/images/defaultBook.png")}
-                                        style={{height: "100%", width: "100%"}}
+                                <View style={{marginRight: 10}} key={`${index}-t1`}>
+                                    <BookComponent
+                                        title={`[${index}] Programming boook test`}
+                                        cover={require("../assets/images/defaultBook.png")}
                                     />
-                                    </View>
-                                </TouchableOpacity>
+                                </View>
                             ))
                             }
                         </ScrollView>
                     </View>
+
                     <View style={styles.section}>
-                        <View style={styles.headerSection}>
-                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                                Maths
-                            </Text>
-                            <TouchableOpacity>
-                                <Feather
-                                    name="arrow-right-circle"
-                                    size={30}
-                                    color="#2C3D55"
-                                    style={{ marginRight: 5 }}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                            {(new Array(40).fill(undefined)).map((_, index) => (
-                                <TouchableOpacity key={`${index}-t1`}>
-                                    <View
-                                        style={{
-                                            height: 150,
-                                            width: 100,
-                                            marginRight: 10
-                                        }}
-                                        key={index}
-                                    >
-                                    <ImageBackground
-                                        source={require("../assets/images/defaultBook.png")}
-                                        style={{height: "100%", width: "100%"}}
-                                    />
-                                    </View>
-                                </TouchableOpacity>
-                            ))
-                            }
-                        </ScrollView>
-                    </View>
-                    <View style={[styles.section, {marginBottom: 40}]}>
                         <View style={styles.headerSection}>
                             <Text style={{ fontSize: 20, fontWeight: "bold"}}>
                                 Romance
@@ -203,27 +170,54 @@ const HomeScreen = ({ navigation }) => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+
+                        <ScrollView
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                        >
                             {(new Array(40).fill(undefined)).map((_, index) => (
-                                <TouchableOpacity key={`${index}-t1`}>
-                                    <View
-                                        style={{
-                                            height: 150,
-                                            width: 100,
-                                            marginRight: 10
-                                        }}
-                                        key={index}
-                                    >
-                                    <ImageBackground
-                                        source={require("../assets/images/defaultBook.png")}
-                                        style={{height: "100%", width: "100%"}}
+                                <View style={{marginRight: 10}} key={`${index}-t1`}>
+                                    <BookComponent
+                                        title={`[${index}] Romance boook test`}
+                                        cover={require("../assets/images/defaultBook.png")}
                                     />
-                                    </View>
-                                </TouchableOpacity>
+                                </View>
                             ))
                             }
                         </ScrollView>
                     </View>
+
+                    <View style={[styles.section, {marginBottom: 50}]}>
+                        <View style={styles.headerSection}>
+                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
+                                Maths
+                            </Text>
+                            <TouchableOpacity>
+                                <Feather
+                                    name="arrow-right-circle"
+                                    size={30}
+                                    color="#2C3D55"
+                                    style={{ marginRight: 5 }}
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                        >
+                            {(new Array(40).fill(undefined)).map((_, index) => (
+                                <View style={{marginRight: 10}} key={`${index}-t1`}>
+                                    <BookComponent
+                                        title={`[${index}] Math boook test`}
+                                        cover={require("../assets/images/defaultBook.png")}
+                                    />
+                                </View>
+                            ))
+                            }
+                        </ScrollView>
+                    </View>
+
                 </ScrollView>
             )}
 
@@ -234,6 +228,7 @@ const HomeScreen = ({ navigation }) => {
                 >
                     <TouchableOpacity
                         onPress={() => navigation.navigate("ShoppingCart")}
+                        activeOpacity={0.3}
                     >
                         <Feather
                             name="shopping-cart"
