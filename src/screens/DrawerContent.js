@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ToastAndroid, Alert, Platform } from 'react-native';
 import {
-    useTheme,
     Avatar,
     Title,
     Caption,
-    Paragraph,
     Drawer,
-    Text,
-    TouchableRipple,
-    Switch,
 } from 'react-native-paper';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -18,11 +13,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AuthContext } from '../context/AuthContext';
 
 const defaultProfileImage = require("../assets/images/defaultUser.png")
+import { NO_ACTION_AVAILABLE_MESSAGE } from '../../constants'
 
 
 const DrawerContent = (props) => {
     let { signOut } = React.useContext(AuthContext)
-    let [selectedId, setSelectedId] = useState(null);
 
     return (
         <View style={{ flex: 1, marginTop: "-2%" }}>
@@ -88,6 +83,63 @@ const DrawerContent = (props) => {
                             label="Shopping Cart"
                             onPress={() => {
                                 props.navigation.navigate('ShoppingCart');
+                            }}
+                        />
+                        <DrawerItem
+                            icon={({ color, size }) => (
+                                <Icon
+                                    name="cogs"
+                                    color={color}
+                                    size={size}
+                                />
+                            )}
+                            label="Settings"
+                            onPress={() => {
+                                if(Platform.OS === "android")
+                                    ToastAndroid.show(
+                                        NO_ACTION_AVAILABLE_MESSAGE ,
+                                        ToastAndroid.LONG
+                                    )
+                                else
+                                    Alert.alert(NO_ACTION_AVAILABLE_MESSAGE)
+                            }}
+                        />
+                        <DrawerItem
+                            icon={({ color, size }) => (
+                                <Icon
+                                    name="credit-card-settings"
+                                    color={color}
+                                    size={size}
+                                />
+                            )}
+                            label="Payments & subscriptions"
+                            onPress={() => {
+                                if(Platform.OS === "android")
+                                    ToastAndroid.show(
+                                        NO_ACTION_AVAILABLE_MESSAGE,
+                                        ToastAndroid.LONG
+                                    )
+                                else
+                                    Alert.alert(NO_ACTION_AVAILABLE_MESSAGE)
+                            }}
+                        />
+                        <DrawerItem
+                            icon={({ color, size }) => (
+                                <Icon
+                                    name="help-circle"
+                                    color={color}
+                                    size={size}
+                                />
+                            )}
+                            label="Help & feedBack"
+                            onPress={() => {
+                                if(Platform.OS === "android")
+                                    ToastAndroid.show(
+                                        NO_ACTION_AVAILABLE_MESSAGE,
+                                        ToastAndroid.LONG
+                                    )
+                                else
+                                    Alert.alert(NO_ACTION_AVAILABLE_MESSAGE)
                             }}
                         />
                     </Drawer.Section>

@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
+    ActivityIndicator
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {ImageSlider} from 'react-native-image-slider-banner'
@@ -16,15 +17,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Badge } from "@rneui/themed";
 
 import {books} from '../../_testdata/books'
-import BannerSliderComponent from '../components/BannerSliderComponent'
 
 const windowWidth = Dimensions.get('window').width;
 
 
 const HomeScreen = ({ navigation }) => {
 
+    let [loaded, setLoaded] = useState(false)
+    setTimeout(()=>{
+        setLoaded(true)
+    }, 1500)
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff'}}>
+        <View style={{ flex: 1, backgroundColor: '#ffffff'}}>
             <LinearGradient
                 colors={['#5485BE', '#507DBC']}
                 style={styles.header}
@@ -37,16 +42,26 @@ const HomeScreen = ({ navigation }) => {
                         color="#ffffff"
                         style={{ marginRight: 5 }}
                     />
-                    <TextInput
+                    <TouchableOpacity
+                        style={{
+                            fontSize: 15,
+                            padding: 15,
+                            width: '90%',
+                            justifyContent: "center"
+                        }}
+                    >
+                        <Text style={{color: "#ffffff"}}>Search</Text>
+                    </TouchableOpacity>
+                    {/*<TextInput
                         placeholder="Search"
                         placeholderTextColor="#ffffff"
                         style={{
                             fontSize: 15,
                             height: '100%',
-                            width: '80%',
+                            width: '90%',
                             color: "#ffffff"
                         }}
-                    />
+                    />*/}
                     <TouchableOpacity onPress={() => navigation.openDrawer()}>
                         <ImageBackground
                             source={require('../assets/images/defaultUser.png')}
@@ -56,119 +71,161 @@ const HomeScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </LinearGradient>
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={{ paddingVertical: 15, paddingHorizontal: 10 }}
-            >
-                <View
-                    style={{
-                        marginTop: 5,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                    }}
+            {!loaded ? (
+                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                    <ActivityIndicator size="large"/>
+                </View>
+            )
+            : (
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={{ paddingVertical: 15, paddingHorizontal: 10 }}
                 >
-                    <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                        Upcoming Books
-                    </Text>
-                </View>
-                <ImageSlider
-                    preview={false}
-                    data={[
-                        {img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5a5uCP-n4teeW2SApcIqUrcQApev8ZVCJkA&usqp=CAU'},
-                        {img: 'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg'},
-                        {img: 'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg'},
-                        {img: 'https://placeimg.com/640/480/any'},
-                    ]}
-                    autoPlay={true}
-                    caroselImageContainerStyle={{
-                        width: windowWidth - 30,
-                        height: 220,
-                        borderRadius: 40,
-                        marginRight: 20,
-                        marginTop: 15
-                    }}
-                    caroselImageStyle={{
-                        height: "100%",
-                        width: "100%",
-                        borderRadius: 20,
-                    }}
-                />
-                <View style={styles.section}>
-                    <View style={styles.headerSection}>
+                    <View
+                        style={{
+                            marginTop: 5,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}
+                    >
                         <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                            Programming
+                            Upcoming Books
                         </Text>
-                        <TouchableOpacity>
-                            <Feather
-                                name="arrow-right-circle"
-                                size={30}
-                                color="#2C3D55"
-                                style={{ marginRight: 5 }}
-                            />
-                        </TouchableOpacity>
                     </View>
-                    <ScrollView horizontal={true}>
-                        <View style={{backgroundColor: "red", height: 150, width: 100, marginRight: 10}}>
+                    <ImageSlider
+                        preview={false}
+                        localImg={true}
+                        data={[
+                            {img: require("../assets/images/defaultBook.png")},
+                            {img: require("../assets/images/defaultBook.png")},
+                            {img: require("../assets/images/defaultBook.png")},
+                            {img: require("../assets/images/defaultBook.png")},
+                            {img: require("../assets/images/defaultBook.png")},
+                            {img: require("../assets/images/defaultBook.png")},
+                            {img: require("../assets/images/defaultBook.png")},
+                        ]}
+                        autoPlay={true}
+                        caroselImageContainerStyle={{
+                            width: windowWidth - 30,
+                            height: 220,
+                            borderRadius: 40,
+                            marginRight: 20,
+                            marginLeft: 5,
+                            marginTop: 15,
+                        }}
+                        caroselImageStyle={{
+                            height: "100%",
+                            width: "100%",
+                            borderRadius: 20,
+                        }}
+                    />
+                    <View style={styles.section}>
+                        <View style={styles.headerSection}>
+                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
+                                Programming
+                            </Text>
+                            <TouchableOpacity>
+                                <Feather
+                                    name="arrow-right-circle"
+                                    size={30}
+                                    color="#2C3D55"
+                                    style={{ marginRight: 5 }}
+                                />
+                            </TouchableOpacity>
                         </View>
-                        <View style={{backgroundColor: "red", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                        <View style={{backgroundColor: "red", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                        <View style={{backgroundColor: "red", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                    </ScrollView>
-                </View>
-                <View style={styles.section}>
-                    <View style={styles.headerSection}>
-                        <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                            Maths
-                        </Text>
-                        <TouchableOpacity>
-                            <Feather
-                                name="arrow-right-circle"
-                                size={30}
-                                color="#2C3D55"
-                                style={{ marginRight: 5 }}
-                            />
-                        </TouchableOpacity>
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {(new Array(40).fill(undefined)).map((_, index) => (
+                                <TouchableOpacity key={`${index}-t1`}>
+                                    <View
+                                        style={{
+                                            height: 150,
+                                            width: 100,
+                                            marginRight: 10
+                                        }}
+                                        key={index}
+                                    >
+                                    <ImageBackground
+                                        source={require("../assets/images/defaultBook.png")}
+                                        style={{height: "100%", width: "100%"}}
+                                    />
+                                    </View>
+                                </TouchableOpacity>
+                            ))
+                            }
+                        </ScrollView>
                     </View>
-                    <ScrollView horizontal={true}>
-                        <View style={{backgroundColor: "yellow", height: 150, width: 100, marginRight: 10}}>
+                    <View style={styles.section}>
+                        <View style={styles.headerSection}>
+                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
+                                Maths
+                            </Text>
+                            <TouchableOpacity>
+                                <Feather
+                                    name="arrow-right-circle"
+                                    size={30}
+                                    color="#2C3D55"
+                                    style={{ marginRight: 5 }}
+                                />
+                            </TouchableOpacity>
                         </View>
-                        <View style={{backgroundColor: "yellow", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                        <View style={{backgroundColor: "yellow", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                        <View style={{backgroundColor: "yellow", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                    </ScrollView>
-                </View>
-                <View style={[styles.section, {marginBottom: 40}]}>
-                    <View style={styles.headerSection}>
-                        <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                            Romance
-                        </Text>
-                        <TouchableOpacity>
-                            <Feather
-                                name="arrow-right-circle"
-                                size={30}
-                                color="#2C3D55"
-                                style={{ marginRight: 5 }}
-                            />
-                        </TouchableOpacity>
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {(new Array(40).fill(undefined)).map((_, index) => (
+                                <TouchableOpacity key={`${index}-t1`}>
+                                    <View
+                                        style={{
+                                            height: 150,
+                                            width: 100,
+                                            marginRight: 10
+                                        }}
+                                        key={index}
+                                    >
+                                    <ImageBackground
+                                        source={require("../assets/images/defaultBook.png")}
+                                        style={{height: "100%", width: "100%"}}
+                                    />
+                                    </View>
+                                </TouchableOpacity>
+                            ))
+                            }
+                        </ScrollView>
                     </View>
-                    <ScrollView horizontal={true}>
-                        <View style={{backgroundColor: "blue", height: 150, width: 100, marginRight: 10}}>
+                    <View style={[styles.section, {marginBottom: 40}]}>
+                        <View style={styles.headerSection}>
+                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
+                                Romance
+                            </Text>
+                            <TouchableOpacity>
+                                <Feather
+                                    name="arrow-right-circle"
+                                    size={30}
+                                    color="#2C3D55"
+                                    style={{ marginRight: 5 }}
+                                />
+                            </TouchableOpacity>
                         </View>
-                        <View style={{backgroundColor: "blue", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                        <View style={{backgroundColor: "blue", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                        <View style={{backgroundColor: "blue", height: 150, width: 100, marginRight: 10}}>
-                        </View>
-                    </ScrollView>
-                </View>
-            </ScrollView>
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {(new Array(40).fill(undefined)).map((_, index) => (
+                                <TouchableOpacity key={`${index}-t1`}>
+                                    <View
+                                        style={{
+                                            height: 150,
+                                            width: 100,
+                                            marginRight: 10
+                                        }}
+                                        key={index}
+                                    >
+                                    <ImageBackground
+                                        source={require("../assets/images/defaultBook.png")}
+                                        style={{height: "100%", width: "100%"}}
+                                    />
+                                    </View>
+                                </TouchableOpacity>
+                            ))
+                            }
+                        </ScrollView>
+                    </View>
+                </ScrollView>
+            )}
 
             <View style={{ position: 'absolute', right: 0, bottom: 0, margin: 25 }}>
                 <LinearGradient
@@ -194,18 +251,18 @@ const HomeScreen = ({ navigation }) => {
                     }
                 </LinearGradient>
             </View>
-        </SafeAreaView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 20,
+        paddingVertical: 20,
+        paddingHorizontal: 30,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
         alignItems: 'center',
+        justifyContent: "center",
         backgroundColor: "#507DBC",
         shadowColor: "red"
     },
@@ -216,7 +273,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
-        paddingVertical: 8,
     },
     section: {
         marginTop: 10,
