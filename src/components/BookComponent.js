@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const BookComponent = ({ title, cover, style, ...props }) => {
+const BookComponent = ({ title, cover, rating, price, ...props}) => {
 
     const trimTitle = (title) => {
         if(title.length > 20) {
@@ -20,7 +20,9 @@ const BookComponent = ({ title, cover, style, ...props }) => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity activeOpacity={0.8}>
+            <TouchableOpacity activeOpacity={0.8}
+                onPress={props.action}
+            >
                 <Image source={cover} style={styles.cover}/>
                 <View style={styles.caption}>
                     <Text>{trimTitle(title)}</Text>
@@ -33,7 +35,7 @@ const BookComponent = ({ title, cover, style, ...props }) => {
                             size={18}
                             style={{marginRight: 2}}
                         />
-                        <Text>9.8</Text>
+                        <Text>{rating}</Text>
                     </View>
                     <View style={{flexDirection: "row", marginLeft: 10}}>
                         <Icon
@@ -41,7 +43,7 @@ const BookComponent = ({ title, cover, style, ...props }) => {
                             color="#2C3D55"
                             size={18}
                         />
-                        <Text>5.99</Text>
+                        <Text>{price}</Text>
                     </View>
                 </View>
             </TouchableOpacity>

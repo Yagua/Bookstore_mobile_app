@@ -88,25 +88,6 @@ const DrawerContent = (props) => {
                         <DrawerItem
                             icon={({ color, size }) => (
                                 <Icon
-                                    name="cogs"
-                                    color={color}
-                                    size={size}
-                                />
-                            )}
-                            label="Settings"
-                            onPress={() => {
-                                if(Platform.OS === "android")
-                                    ToastAndroid.show(
-                                        NO_ACTION_AVAILABLE_MESSAGE ,
-                                        ToastAndroid.LONG
-                                    )
-                                else
-                                    Alert.alert(NO_ACTION_AVAILABLE_MESSAGE)
-                            }}
-                        />
-                        <DrawerItem
-                            icon={({ color, size }) => (
-                                <Icon
                                     name="credit-card-settings"
                                     color={color}
                                     size={size}
@@ -117,6 +98,25 @@ const DrawerContent = (props) => {
                                 if(Platform.OS === "android")
                                     ToastAndroid.show(
                                         NO_ACTION_AVAILABLE_MESSAGE,
+                                        ToastAndroid.LONG
+                                    )
+                                else
+                                    Alert.alert(NO_ACTION_AVAILABLE_MESSAGE)
+                            }}
+                        />
+                        <DrawerItem
+                            icon={({ color, size }) => (
+                                <Icon
+                                    name="cogs"
+                                    color={color}
+                                    size={size}
+                                />
+                            )}
+                            label="Settings"
+                            onPress={() => {
+                                if(Platform.OS === "android")
+                                    ToastAndroid.show(
+                                        NO_ACTION_AVAILABLE_MESSAGE ,
                                         ToastAndroid.LONG
                                     )
                                 else

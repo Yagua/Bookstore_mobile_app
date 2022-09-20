@@ -6,17 +6,29 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 7.8,
         available: true,
         categories: [
             { name: "Education" },
-            { name: "Programming" }
+            { name: "Programming" },
         ],
         authors: [
             {
                 first_name: "Cay",
                 second_name: "Stephan",
                 paternal_last_name: "Horstmann",
+                country: "United States"
+            },
+            {
+                first_name: "Roy",
+                second_name: "Verash",
+                paternal_last_name: "Ruman",
+                country: "United States"
+            },
+            {
+                first_name: "Nicola",
+                second_name: "Musha",
+                paternal_last_name: "Erla",
                 country: "United States"
             }
         ]
@@ -50,7 +62,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 6.8,
         available: true,
         categories: [
             { name: "Education" },
@@ -72,7 +84,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 8.9,
         available: true,
         categories: [
             { name: "Education" },
@@ -94,7 +106,7 @@ export const books = [
         language: "Spanish",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 2.3,
         available: true,
         categories: [
             { name: "Education" },
@@ -116,7 +128,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 7.8,
         available: true,
         categories: [
             { name: "Education" },
@@ -138,7 +150,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 9.9,
         available: true,
         categories: [
             { name: "Education" },
@@ -160,7 +172,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 0.1,
         available: true,
         categories: [
             { name: "Education" },
@@ -182,11 +194,11 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 10.0,
         available: true,
         categories: [
             { name: "Education" },
-            { name: "Programming" }
+            { name: "Maths" }
         ],
         authors: [
             {
@@ -204,7 +216,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 2.4,
         available: true,
         categories: [
             { name: "Education" },
@@ -226,7 +238,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 9.9,
         available: true,
         categories: [
             { name: "Education" },
@@ -248,7 +260,7 @@ export const books = [
         language: "English",
         page_number: 928,
         publishier: "Pearson",
-        rating: 9.8,
+        rating: 4.3,
         available: true,
         categories: [
             { name: "Education" },

@@ -23,10 +23,16 @@ const windowWidth = Dimensions.get('window').width;
 
 const HomeScreen = ({ navigation }) => {
 
-    let [loaded, setLoaded] = useState(false)
-    setTimeout(()=>{
-        setLoaded(true)
-    }, 1500)
+    // let [loaded, setLoaded] = useState(false)
+
+    const randomPrice = () => {
+        return ((Math.random() + 1) * 5).toPrecision(3)
+    }
+
+    const pruneBadgeNumber = (cant) => {
+        if(cant > 99) return "+99"
+        return cant
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff'}}>
@@ -76,7 +82,7 @@ const HomeScreen = ({ navigation }) => {
                 </View>
             </LinearGradient>
 
-            {!loaded ? (
+            {!true ? (
                 <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
                     <ActivityIndicator size="large"/>
                 </View>
@@ -128,7 +134,7 @@ const HomeScreen = ({ navigation }) => {
                     <View style={styles.section}>
                         <View style={styles.headerSection}>
                             <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                                Programming
+                                My Books
                             </Text>
                             <TouchableOpacity>
                                 <Feather
@@ -144,80 +150,23 @@ const HomeScreen = ({ navigation }) => {
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
                         >
-                            {(new Array(40).fill(undefined)).map((_, index) => (
+                            {books.map((book, index) => (
                                 <View style={{marginRight: 10}} key={`${index}-t1`}>
                                     <BookComponent
-                                        title={`[${index}] Programming boook test`}
+                                        title={book.title}
+                                        rating={book.rating}
                                         cover={require("../assets/images/defaultBook.png")}
+                                        price={randomPrice()}
+                                        bookId={index}
+                                        action={() =>
+                                            navigation.navigate("BookPreview", {bookData: book})
+                                        }
                                     />
                                 </View>
                             ))
                             }
                         </ScrollView>
                     </View>
-
-                    <View style={styles.section}>
-                        <View style={styles.headerSection}>
-                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                                Romance
-                            </Text>
-                            <TouchableOpacity>
-                                <Feather
-                                    name="arrow-right-circle"
-                                    size={30}
-                                    color="#2C3D55"
-                                    style={{ marginRight: 5 }}
-                                />
-                            </TouchableOpacity>
-                        </View>
-
-                        <ScrollView
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        >
-                            {(new Array(40).fill(undefined)).map((_, index) => (
-                                <View style={{marginRight: 10}} key={`${index}-t1`}>
-                                    <BookComponent
-                                        title={`[${index}] Romance boook test`}
-                                        cover={require("../assets/images/defaultBook.png")}
-                                    />
-                                </View>
-                            ))
-                            }
-                        </ScrollView>
-                    </View>
-
-                    <View style={[styles.section, {marginBottom: 50}]}>
-                        <View style={styles.headerSection}>
-                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                                Maths
-                            </Text>
-                            <TouchableOpacity>
-                                <Feather
-                                    name="arrow-right-circle"
-                                    size={30}
-                                    color="#2C3D55"
-                                    style={{ marginRight: 5 }}
-                                />
-                            </TouchableOpacity>
-                        </View>
-
-                        <ScrollView
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        >
-                            {(new Array(40).fill(undefined)).map((_, index) => (
-                                <View style={{marginRight: 10}} key={`${index}-t1`}>
-                                    <BookComponent
-                                        title={`[${index}] Math boook test`}
-                                        cover={require("../assets/images/defaultBook.png")}
-                                    />
-                                </View>
-                            ))
-                            }
-                        </ScrollView>
-                    </View>
-
                 </ScrollView>
             )}
 
@@ -240,7 +189,7 @@ const HomeScreen = ({ navigation }) => {
                     {true && //show if cant of items in the cart is greater than 0
                     <Badge
                         status="error"
-                        value={"+99"}
+                        value={pruneBadgeNumber(150)}
                         badgeStyle={{ position: 'absolute', bottom: 38, left: 40 }}
                     />
                     }
