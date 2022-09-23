@@ -7,16 +7,9 @@ import {
     Image
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import { trimText } from '../../utils'
 
 const BookComponent = ({ title, cover, rating, price, ...props}) => {
-
-    const trimTitle = (title) => {
-        if(title.length > 20) {
-            let newTitle = title.substring(0, 20);
-            return `${newTitle}...`;
-        }
-        return title;
-    }
 
     return (
         <View style={styles.container}>
@@ -25,7 +18,7 @@ const BookComponent = ({ title, cover, rating, price, ...props}) => {
             >
                 <Image source={cover} style={styles.cover}/>
                 <View style={styles.caption}>
-                    <Text>{trimTitle(title)}</Text>
+                    <Text>{trimText(title, 20)}</Text>
                 </View>
                 <View style={{flexDirection: "row"}}>
                     <View style={{

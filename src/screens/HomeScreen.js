@@ -16,6 +16,7 @@ import { Badge } from "@rneui/themed";
 
 import BookComponent from '../components/BookComponent'
 import {books} from '../../_testdata/_data'
+import {cart} from '../../_testdata/cart'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -183,7 +184,7 @@ const HomeScreen = ({ navigation }) => {
                     {true && //show if cant of items in the cart is greater than 0
                     <Badge
                         status="error"
-                        value={pruneBadgeNumber(150)}
+                        value={pruneBadgeNumber(cart.items.length)}
                         badgeStyle={{ position: 'absolute', bottom: 38, left: 40 }}
                     />
                     }
