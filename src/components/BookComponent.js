@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Feather from 'react-native-vector-icons/Feather';
 
 const BookComponent = ({ title, cover, rating, price, ...props}) => {
 
@@ -27,21 +27,29 @@ const BookComponent = ({ title, cover, rating, price, ...props}) => {
                 <View style={styles.caption}>
                     <Text>{trimTitle(title)}</Text>
                 </View>
-                <View style={{flexDirection: "row", alignItems: "center"}}>
-                    <View style={{flexDirection: "row"}}>
-                        <Icon
+                <View style={{flexDirection: "row"}}>
+                    <View style={{
+                        flexDirection: "row",
+                        alignItems: "center"
+                    }}>
+                        <Feather
                             name="star"
+                            size={15}
                             color="#2C3D55"
-                            size={18}
-                            style={{marginRight: 2}}
+                            style={{marginRight: 3}}
                         />
                         <Text>{rating}</Text>
                     </View>
-                    <View style={{flexDirection: "row", marginLeft: 10}}>
-                        <Icon
-                            name="currency-usd"
+                    <View style={{
+                        flexDirection: "row",
+                         marginLeft: 10,
+                         alignItems: "center"
+                    }}>
+                        <Feather
+                            name="dollar-sign"
+                            size={15}
                             color="#2C3D55"
-                            size={18}
+                            style={{marginRight: 2}}
                         />
                         <Text>{price}</Text>
                     </View>
@@ -61,7 +69,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     caption: {
-        paddingHorizontal: 3,
         paddingVertical: 7,
     }
 });

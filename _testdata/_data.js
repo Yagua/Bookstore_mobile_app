@@ -1,4 +1,4 @@
-const data = [
+export const books = [
     {
       "title": "Android Game Recipes",
       "description": "Android game apps are typically the most popular type of Android apps in the various Google Play, Amazon Appstore and other Android app stores. So, beyond the Android game tutorials out there, what about a day-to-day handy and complete code reference for Android game developers? Android Game Recipes is your first, reliable game coding reference for today's Android game apps. This book provides easy to follow real world game code problems and solutions, including source code. This book covers code recipe solutions that are common to 2D game development problems such as designing a game menu, collision detection, moving characters, moving backgrounds and more. This book also includes how to work with player input, how to add multiple levels, how to create game graphics for different screen resolution, and how to work with device sensors. After reading and using this book, you'll have the templated code snippets, solutions and frameworks to apply to your game app design to build your game, customize it, and then sell it on the Android app stores.",

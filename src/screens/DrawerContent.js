@@ -7,7 +7,7 @@ import {
     Drawer,
 } from 'react-native-paper';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { AuthContext } from '../context/AuthContext';
@@ -48,8 +48,8 @@ const DrawerContent = (props) => {
                     <Drawer.Section style={styles.drawerSection}>
                         <DrawerItem
                             icon={({ color, size }) => (
-                                <Icon
-                                    name="home-outline"
+                                <Feather
+                                    name="home"
                                     color={color}
                                     size={size}
                                 />
@@ -61,8 +61,8 @@ const DrawerContent = (props) => {
                         />
                         <DrawerItem
                             icon={({ color, size }) => (
-                                <Icon
-                                    name="account"
+                                <Feather
+                                    name="user"
                                     color={color}
                                     size={size}
                                 />
@@ -74,8 +74,8 @@ const DrawerContent = (props) => {
                         />
                         <DrawerItem
                             icon={({ color, size }) => (
-                                <Icon
-                                    name="cart"
+                                <Feather
+                                    name="shopping-cart"
                                     color={color}
                                     size={size}
                                 />
@@ -87,8 +87,8 @@ const DrawerContent = (props) => {
                         />
                         <DrawerItem
                             icon={({ color, size }) => (
-                                <Icon
-                                    name="credit-card-settings"
+                                <Feather
+                                    name="credit-card"
                                     color={color}
                                     size={size}
                                 />
@@ -106,8 +106,8 @@ const DrawerContent = (props) => {
                         />
                         <DrawerItem
                             icon={({ color, size }) => (
-                                <Icon
-                                    name="cogs"
+                                <Feather
+                                    name="settings"
                                     color={color}
                                     size={size}
                                 />
@@ -125,7 +125,7 @@ const DrawerContent = (props) => {
                         />
                         <DrawerItem
                             icon={({ color, size }) => (
-                                <Icon
+                                <Feather
                                     name="help-circle"
                                     color={color}
                                     size={size}
@@ -148,7 +148,7 @@ const DrawerContent = (props) => {
             <View style={styles.bottomDrawerSection}>
                 <DrawerItem
                     icon={({ color, size }) => (
-                        <Icon name="exit-to-app" color={color} size={size} />
+                        <Feather name="log-out" color={color} size={size} />
                     )}
                     label="Sign Out"
                     onPress={() => {

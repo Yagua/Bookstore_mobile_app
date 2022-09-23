@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import {
     View,
     Text,
-    SafeAreaView,
     ScrollView,
     ImageBackground,
-    TextInput,
     TouchableOpacity,
     StyleSheet,
     Dimensions,
@@ -17,17 +15,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Badge } from "@rneui/themed";
 
 import BookComponent from '../components/BookComponent'
-import {books} from '../../_testdata/data'
+import {books} from '../../_testdata/_data'
 
 const windowWidth = Dimensions.get('window').width;
 
 const HomeScreen = ({ navigation }) => {
 
     // let [loaded, setLoaded] = useState(false)
-
-    const randomPrice = () => {
-        return ((Math.random() + 1) * 5).toPrecision(3)
-    }
 
     const pruneBadgeNumber = (cant) => {
         if(cant > 99) return "+99"
@@ -150,14 +144,14 @@ const HomeScreen = ({ navigation }) => {
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
                         >
-                            {books.map((book, index) => (
+                            {(books.splice(150, 170)).map((book, index) => (
                                 <View style={{marginRight: 10}} key={`${index}-t1`}>
                                     <BookComponent
                                         title={book.title}
                                         rating={book.rating}
-                                        cover={require("../assets/images/defaultBook.png")}
-                                        price={randomPrice()}
+                                        price={book.price}
                                         bookId={index}
+                                        cover={require("../assets/images/defaultBook.png")}
                                         action={() =>
                                             navigation.navigate("BookPreview", {bookData: book})
                                         }
