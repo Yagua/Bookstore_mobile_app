@@ -62,6 +62,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                                 <View>
                                     <Image
                                         source={require('../assets/images/defaultBook.png')}
+                                        // source={{uri: item.book.cover}}
                                         style={styles.bookImage}
                                     />
                                 </View>
@@ -188,6 +189,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                     <View style={{marginBottom: 145}}></View>
                 </ScrollView>
             </View>
+            {true && // dont show if the cart if empty
             <View style={styles.floatingCard}>
                 <Text
                     style={{
@@ -197,10 +199,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                 >Total order: $1</Text>
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={{
-                        position: "relative",
-                        width: "70%"
-                    }}
+                    style={{width: "70%"}}
                 >
                     <LinearGradient
                         colors={['#58A1E8', '#5485BE']}
@@ -224,6 +223,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
+            }
         </>
     );
 };

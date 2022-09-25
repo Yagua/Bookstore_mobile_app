@@ -50,6 +50,7 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                 <View style={{flexDirection: "row"}}>
                     <View>
                         <Image
+                            // source={{uri: bookData.cover}}
                             source={require("../assets/images/defaultBook.png")}
                             style={styles.cover}
                         />

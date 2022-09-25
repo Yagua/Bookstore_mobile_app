@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     caption: {
         fontSize: 14,
         lineHeight: 14,
-        color: "#DAE3E5"
+        color: "#D4D8D9"
     },
     row: {
         marginTop: 20,

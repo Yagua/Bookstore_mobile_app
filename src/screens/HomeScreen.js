@@ -126,10 +126,10 @@ const HomeScreen = ({ navigation }) => {
                         }}
                     />
 
-                    <View style={styles.section}>
+                    <View style={{marginTop: 10}}>
                         <View style={styles.headerSection}>
                             <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                                My Books
+                                Books Category One
                             </Text>
                             <TouchableOpacity>
                                 <Feather
@@ -152,6 +152,7 @@ const HomeScreen = ({ navigation }) => {
                                         rating={book.rating}
                                         price={book.price}
                                         bookId={index}
+                                        // cover={{uri: book.cover}}
                                         cover={require("../assets/images/defaultBook.png")}
                                         action={() =>
                                             navigation.navigate("BookPreview", {bookData: book})
@@ -212,9 +213,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
-    },
-    section: {
-        marginTop: 10,
     },
     headerSection: {
         marginVertical: 10,
