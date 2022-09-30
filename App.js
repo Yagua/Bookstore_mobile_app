@@ -10,7 +10,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import ShoppingCartScreen from './src/screens/ShoppingCartScreen';
 import DrawerContent from './src/screens/DrawerContent';
-import BookScreen from './src/screens/BookScreen.js'
+import BookScreen from './src/screens/BookScreen'
+import SearchResultScreen from './src/screens/SeachResultScreen'
 
 const Drawer = createDrawerNavigator();
 
@@ -73,6 +74,7 @@ export default function App() {
                         <Drawer.Screen name="Profile" component={ProfileScreen}/>
                         <Drawer.Screen name="ShoppingCart" component={ShoppingCartScreen}/>
                         <Drawer.Screen name="BookPreview" component={BookScreen}/>
+                        <Drawer.Screen name="SearchResult" component={SearchResultScreen}/>
                     </Drawer.Navigator>
                   )
                 :

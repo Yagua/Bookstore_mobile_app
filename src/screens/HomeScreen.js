@@ -7,7 +7,8 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    ActivityIndicator
+    ActivityIndicator,
+    TextInput
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {ImageSlider} from 'react-native-image-slider-banner'
@@ -22,7 +23,8 @@ const windowWidth = Dimensions.get('window').width;
 
 const HomeScreen = ({ navigation }) => {
 
-    // let [loaded, setLoaded] = useState(false)
+    let [loaded, setLoaded] = useState(false)
+    let [searchTerm, setSearchTerm] = useState('')
 
     const pruneBadgeNumber = (cant) => {
         if(cant > 99) return "+99"
@@ -43,27 +45,28 @@ const HomeScreen = ({ navigation }) => {
                         color="#ffffff"
                         style={{ marginRight: 5 }}
                     />
-                    <TouchableOpacity
-                        style={{
-                            fontSize: 15,
-                            padding: 15,
-                            width: '90%',
-                            justifyContent: "center"
-                        }}
-                        activeOpacity={0.5}
-                    >
-                        <Text style={{color: "#ffffff"}}>Search</Text>
-                    </TouchableOpacity>
-                    {/*<TextInput
+                    <TextInput
                         placeholder="Search"
                         placeholderTextColor="#ffffff"
                         style={{
                             fontSize: 15,
+                            padding: 10,
                             height: '100%',
                             width: '90%',
                             color: "#ffffff"
                         }}
-                    />*/}
+                        returnKeyType="search"
+                        onChangeText={(value) => {
+                            setSearchTerm(value.trim())
+                        }}
+                        onSubmitEditing={() => {
+                            let encodedSeachTerm = encodeURIComponent(searchTerm)
+                            if(encodedSeachTerm === "") return
+                            navigation.navigate("SearchResult", {
+                                searchTerm: encodedSeachTerm
+                            })
+                        }}
+                    />
                     <TouchableOpacity
                         onPress={() => navigation.openDrawer()}
                         activeOpacity={0.5}
@@ -145,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
                         >
-                            {(books.splice(150, 170)).map((book, index) => (
+                            {(books.slice(150, 170)).map((book, index) => (
                                 <View style={{marginRight: 10}} key={`${index}-t1`}>
                                     <BookComponent
                                         title={book.title}
