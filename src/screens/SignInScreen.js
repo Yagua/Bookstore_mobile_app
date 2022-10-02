@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     StatusBar,
     ScrollView,
+    ActivityIndicator
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
@@ -16,6 +17,8 @@ import { useState, useContext } from 'react';
 import * as Animatable from 'react-native-animatable';
 
 import { AuthContext } from "../context/AuthContext";
+import AuthService from '../service/AuthService'
+import ModalComponent from '../components/ModalComponent'
 
 let logo = require('../assets/images/logoTransparent.png');
 
@@ -23,7 +26,16 @@ const SignInScreen = ({ navigation }) => {
     let [username, setUserName] = useState('');
     let [password, setPassword] = useState('');
     let [visiblePassword, setVisiblePassword] = useState(false);
+    let [modalVisible, setModalVisible] = useState(false);
+    let [modalSettings, setModalSettings] = useState({
+        title: '',
+        body: '',
+        acceptButtonTitle: '',
+        cancelButtonTitle: '',
+        isAlert: false
+    })
     let { signIn } = useContext(AuthContext)
+    let [isLoading, setIsLoading] = useState(false)
 
     const updatePasswordVisibily = () => {
         setVisiblePassword(!visiblePassword);
@@ -32,11 +44,35 @@ const SignInScreen = ({ navigation }) => {
     let allowLogin = username.trim().length > 0 && password.length > 0
 
     const handleLogin = () => {
-        let testTokens = {
-            "access": "shtq-80o8utshoeuntho",
-            "refresh": "qqjkoe08-898aoeu-ae",
-        }
-        signIn(testTokens)
+        setIsLoading(true)
+        AuthService.login(username, password)
+            .then(response => {
+                (async () => {
+                    await signIn(response)
+                    setIsLoading(false)
+                })()
+            })
+            .catch(error => {
+                setIsLoading(false)
+                setModalSettings((prevState) => ({
+                    ...prevState,
+                    isAlert: true,
+                    title: "Alert",
+                    body: "User identified with the given credentials not fonud",
+                    acceptButtonTitle: "Accept",
+                    cancelButtonTitle: "Cancel",
+                }))
+                setModalVisible(true)
+                console.error(error)
+            })
+    }
+
+    if(isLoading){
+        return (
+            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
     }
 
     return (
@@ -131,6 +167,16 @@ const SignInScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </ScrollView>
             </Animatable.View>
+            <ModalComponent
+                title={modalSettings.title}
+                body={modalSettings.body}
+                isAlert={modalSettings.isAlert}
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                acceptAction={() => {navigation.navigate('SignInScreen')}}
+                acceptButtonTitle={modalSettings.acceptButtonTitle}
+                cancelButtonTitle={modalSettings.cancelButtonTitle}
+            />
         </LinearGradient>
     );
 };
