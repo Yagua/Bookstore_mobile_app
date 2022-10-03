@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     View,
     Text,
     ScrollView,
-    ImageBackground,
     TouchableOpacity,
     StyleSheet,
     Dimensions,
@@ -16,6 +15,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Badge } from "@rneui/themed";
 
 import BookComponent from '../components/BookComponent'
+import SearchService from '../service/SearchService'
+import {AuthContext} from '../context/AuthContext'
+import {APP_HOST} from '../../constants'
+
 import {books} from '../../_testdata/_data'
 import {cart} from '../../_testdata/cart'
 
@@ -23,12 +26,33 @@ const windowWidth = Dimensions.get('window').width;
 
 const HomeScreen = ({ navigation }) => {
 
-    let [loaded, setLoaded] = useState(false)
+    let {userTokens} = useContext(AuthContext)
+    let [isLoading, setIsLoading] = useState(false)
     let [searchTerm, setSearchTerm] = useState('')
 
     const pruneBadgeNumber = (cant) => {
         if(cant > 99) return "+99"
         return cant
+    }
+
+    const triggerSearch = async (searchTerm) => {
+        try {
+            let response = await SearchService.performSearch(
+                userTokens.access,
+                searchTerm
+            )
+            return response
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    if(isLoading){
+        return (
+            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
     }
 
     return (
@@ -59,23 +83,37 @@ const HomeScreen = ({ navigation }) => {
                         onChangeText={(value) => {
                             setSearchTerm(value.trim())
                         }}
-                        onSubmitEditing={() => {
+                        onSubmitEditing={async () => {
                             let encodedSeachTerm = encodeURIComponent(searchTerm)
                             if(encodedSeachTerm === "") return
+
+                            setIsLoading(true)
+                            let searchResult = await triggerSearch(searchTerm)
                             navigation.navigate("SearchResult", {
-                                searchTerm: encodedSeachTerm
+                                searchResult: searchResult
                             })
+                            setIsLoading(false)
                         }}
                     />
                     <TouchableOpacity
                         onPress={() => navigation.openDrawer()}
                         activeOpacity={0.5}
                     >
-                        <ImageBackground
-                            source={require('../assets/images/defaultUser.png')}
-                            style={{ width: 35, height: 35 }}
-                            imageStyle={{ borderRadius: 25 }}
-                        />
+                        <View style={{
+                            backgroundColor: "#EDEDED",
+                            borderRadius: 50,
+                            width: 35,
+                            height: 35,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            padding: 5
+                        }}>
+                            <Feather
+                                name="hexagon"
+                                size={25}
+                                color="#507DBC"
+                            />
+                        </View>
                     </TouchableOpacity>
                 </View>
             </LinearGradient>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
     View,
     ScrollView,
@@ -10,10 +10,25 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 
 import BookComponent from '../components/BookComponent'
-import {books} from '../../_testdata/_data'
+import {APP_HOST} from '../../constants'
+// import SearchService from '../service/SearchService'
+// import {AuthContext} from '../context/AuthContext'
 
-const SearchResultScreen = ({navigation, route: {params: { searchTerm }}}) => {
-    let [dataIsLoaded, setDataIsLoaded] = useState(false)
+const SearchResultScreen = ({navigation, route: {params}}) => {
+    let [isLoading, setIsLoading] = useState(false)
+    // let [searchResult, setSearchResult] = useState(params.searchResult)
+    // let [searchResult, setSearchResult] = useState([])
+    // let {userTokens} = useContext(AuthContext)
+
+    // useEffect(() => {
+    //     setIsLoading(true)
+    //     SearchService.performSearch(userTokens.access, searchTerm)
+    //         .then(response => {
+    //             setSearchResult(response)
+    //             setIsLoading(false)
+    //         })
+    //         .catch(error => console.error(error))
+    // }, [searchTerm])
 
     return (
         <View style={styles.container}>
@@ -42,8 +57,7 @@ const SearchResultScreen = ({navigation, route: {params: { searchTerm }}}) => {
                 >Search Results</Text>
             </View>
 
-            {dataIsLoaded ?
-            // {!dataIsLoaded ?
+            {isLoading ?
                 <View style={{
                     flex:1,
                     justifyContent:'center',
@@ -55,21 +69,33 @@ const SearchResultScreen = ({navigation, route: {params: { searchTerm }}}) => {
             :
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.resultsContainer}>
-                        {books.slice(20, 40).map((book, index) => (
-                            <View style={{marginBottom: 15}} key={`br-${index}`}>
-                                <BookComponent
-                                    title={book.title}
-                                    rating={book.rating}
-                                    price={book.price}
-                                    bookId={index}
-                                    // cover={{uri: book.cover}}
-                                    cover={require("../assets/images/defaultBook.png")}
-                                    action={() =>
-                                        navigation.navigate("BookPreview", {bookData: book})
-                                    }
-                                />
+                        {params.searchResult.length > 0 ?
+                            <>
+                            {params.searchResult.map(book => (
+                                <View style={{marginBottom: 15}} key={`br-${book.id}`}>
+                                    <BookComponent
+                                        title={book.title}
+                                        rating={book.rating}
+                                        price={book.price}
+                                        bookId={book.id}
+                                        cover={book.cover
+                                            ? {uri: `${APP_HOST}${book.cover}`}
+                                            : require("../assets/images/defaultBook.png")
+                                        }
+                                        action={() =>
+                                            navigation.navigate("BookPreview", {bookData: book})
+                                        }
+                                    />
+                                </View>
+                            ))
+                            }
+                            </>
+                        :
+                            <View>
+                                <Text style={{fontStyle: "italic"}}>
+                                    There are not results
+                                </Text>
                             </View>
-                        ))
                         }
                     </View>
                 </ScrollView>

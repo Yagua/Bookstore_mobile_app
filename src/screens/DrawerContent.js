@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ToastAndroid, Alert, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ToastAndroid, Alert, Platform, ActivityIndicator, Image } from 'react-native';
 import {
-    Avatar,
     Title,
     Caption,
     Drawer,
@@ -11,13 +10,32 @@ import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { AuthContext } from '../context/AuthContext';
+import UserService from '../service/UserService'
 
 const defaultProfileImage = require("../assets/images/defaultUser.png")
-import { NO_ACTION_AVAILABLE_MESSAGE } from '../../constants'
-
+import { NO_ACTION_AVAILABLE_MESSAGE, APP_HOST } from '../../constants'
 
 const DrawerContent = (props) => {
-    let { signOut } = React.useContext(AuthContext)
+    let { signOut, userTokens } = React.useContext(AuthContext)
+    let [isLoading, setIsLoading] = useState(false)
+    let [userInfo, setUserInfo] = useState({
+        username: '',
+        first_name: '',
+        paternal_last_name: '',
+        picture: null,
+    })
+
+    useEffect(() => {
+        UserService.getUserProfile(userTokens.access)
+            .then(response => setUserInfo((prevState) => ({
+                ...prevState,
+                username: response.user.username,
+                first_name: response.user.first_name,
+                paternal_last_name: response.user.paternal_last_name,
+                picture: response.picture
+            })))
+            .catch(error => console.error(error))
+    }, [])
 
     return (
         <View style={{ flex: 1, marginTop: "-2%" }}>
@@ -29,9 +47,12 @@ const DrawerContent = (props) => {
                         style={styles.userInfoSection}
                     >
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
-                            <Avatar.Image
-                                source={defaultProfileImage}
-                                size={70}
+                            <Image
+                                source={userInfo.picture
+                                    ? {uri: `${APP_HOST}${userInfo.picture}`}
+                                    : defaultProfileImage
+                                }
+                                style={{height: 80, width: 80, borderRadius: 50}}
                             />
                             <View
                                 style={{
@@ -39,8 +60,8 @@ const DrawerContent = (props) => {
                                     flexDirection: 'column',
                                 }}
                             >
-                                <Title style={styles.title}>Dilan Baron</Title>
-                                <Caption style={styles.caption}>@yagua</Caption>
+                                <Title style={styles.title}>{userInfo.first_name} {userInfo.paternal_last_name}</Title>
+                                <Caption style={styles.caption}>@{userInfo.username}</Caption>
                             </View>
                         </View>
                     </LinearGradient>

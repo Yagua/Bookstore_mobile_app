@@ -18,56 +18,20 @@ const Drawer = createDrawerNavigator();
 
 export default function App() {
 
-    const initialLoginState = {
-        isLoading: true,
-        userTokens: null,
-        userProfile: null,
-    }
-
-    const loginReducer = (prevState, action) => {
-        switch(action.type) {
-            case "GET_STORED_INFO":
-                return {
-                    ...prevState,
-                    userTokens: action.tokens,
-                    userProfile: action.userProfile,
-                    isLoading: false,
-                }
-            case "LOGIN":
-                return {
-                    ...prevState,
-                    userTokens: action.tokens,
-                    userProfile: action.userProfile,
-                    isLoading: false,
-                }
-            case "LOGOUT":
-                return {
-                    ...prevState,
-                    userTokens: null,
-                    userProfile: null,
-                    isLoading: false,
-                }
-            //TODO: add register case
-        }
-    }
+    let [userTokens, setUserTokens] = useState(null)
+    let [userInfo, setUserInfo] = useState(null)
 
     const retriveStoredInfo = async () => {
-        let userProfile = null;
-        let tokens = null;
         try {
             let retrivedData = await AsyncStorage.getItem("userInfo")
+            if(!retrivedData) return
             let userInfo = await JSON.parse(retrivedData)
-            userProfile = userInfo.profile
-            tokens = userInfo.tokens
+            setUserInfo(userInfo.profile)
+            setUserTokens(userInfo.tokens)
 
         } catch (error) {
             console.error(error)
         }
-        dispatch({
-            type: "GET_STORED_INFO",
-            tokens: tokens,
-            userProfile: userProfile
-        })
     }
 
     useEffect(() => {
@@ -75,43 +39,33 @@ export default function App() {
     }, [])
 
 
-    const [loginState, dispatch] = useReducer(loginReducer, initialLoginState)
+    const signIn = async (response) => {
+        const userInfo = response.profile
+        const tokens = response.tokens
 
-    const authProvider = useMemo(() => ({
-        signIn: async (response) => {
-            const userProfile = response.profile
-            const tokens = response.tokens
-
-            try {
-                await AsyncStorage.setItem("userInfo", JSON.stringify(response))
-            } catch (error) {
-                console.error(error)
-            }
-
-            dispatch({type: "LOGIN", tokens: tokens, userProfile: userProfile})
-        },
-        signOut: async () => {
-            try {
-                await AsyncStorage.removeItem("userInfo")
-            } catch (error) {
-                console.error(error)
-            }
-            dispatch({type: "LOGOUT"})
+        try {
+            await AsyncStorage.setItem("userInfo", JSON.stringify(response))
+            setUserTokens(tokens)
+            setUserInfo(userInfo)
+        } catch (error) {
+            console.error(error)
         }
-    }), []);
+    }
 
-    // if(loginState.isLoading) {
-    //     return (
-    //         <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-    //             <ActivityIndicator size="large"/>
-    //         </View>
-    //     );
-    // }
+    const signOut = async () => {
+        try {
+            await AsyncStorage.removeItem("userInfo")
+            setUserTokens(null)
+            setUserInfo(null)
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     return (
-        <AuthContext.Provider value={authProvider}>
+        <AuthContext.Provider value={{signIn, signOut, userTokens, userInfo}}>
             <NavigationContainer theme={DefaultTheme}>
-                {loginState.userTokens !== null ? (
+                {userTokens !== null ? (
                     <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />}>
                         <Drawer.Screen name="Home" component={HomeScreen}/>
                         <Drawer.Screen name="Profile" component={ProfileScreen}/>

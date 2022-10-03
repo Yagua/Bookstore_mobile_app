@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
+import {APP_HOST} from '../../constants'
 
 const BookScreen = ({navigation, route: { params: {bookData} }}) => {
     let [lines, setLines] = useState(1)
@@ -51,8 +52,10 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                     <View style={{flexDirection: "row"}}>
                         <View>
                             <Image
-                                // source={{uri: bookData.cover}}
-                                source={require("../assets/images/defaultBook.png")}
+                                source={bookData.cover
+                                    ? {uri: `${APP_HOST}${bookData.cover}`}
+                                    : require("../assets/images/defaultBook.png")
+                                }
                                 style={styles.cover}
                             />
                         </View>
