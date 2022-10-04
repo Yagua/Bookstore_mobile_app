@@ -53,13 +53,16 @@ const DrawerContent = (props) => {
                                 }
                                 style={{height: 80, width: 80, borderRadius: 50}}
                             />
-                            <View
-                                style={{
-                                    marginLeft: 18,
+                            <View style={{
+                                    marginLeft: 13,
+                                    marginRight: 5,
                                     flexDirection: 'column',
+                                    flex: 1,
                                 }}
                             >
-                                <Title style={styles.title}>{userInfo.first_name} {userInfo.paternal_last_name}</Title>
+                                <Title style={styles.title}>
+                                    {userInfo.first_name} {userInfo.paternal_last_name}
+                                </Title>
                                 <Caption style={styles.caption}>@{userInfo.username}</Caption>
                             </View>
                         </View>
@@ -194,7 +197,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginTop: 3,
         fontWeight: 'bold',
-        color: "#ffffff"
+        color: "#ffffff",
     },
     caption: {
         fontSize: 14,

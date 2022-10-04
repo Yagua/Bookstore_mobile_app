@@ -43,15 +43,16 @@ const SignUpScreen = ({navigation}) => {
     })
 
     const handleOnChange = (input, value) => {
+        value = input === "password" || input === "re_password"
+            ? value
+            : value.trim()
         setUserData((prevState) => ({...prevState, [input]: value}))
     }
 
     let allowRegister =
         userData.username.trim().length > 0 &&
         userData.first_name.trim().length > 0 &&
-        userData.second_name.trim().length > 0 &&
         userData.paternal_last_name.trim().length > 0 &&
-        userData.maternal_last_name.trim().length > 0 &&
         userData.email.trim().length > 0 &&
         userData.password.length > 0 &&
         userData.re_password.length > 0
@@ -73,16 +74,54 @@ const SignUpScreen = ({navigation}) => {
             isAlert: false
         })
         let formEmpty = checkFormValues()
-        if(formEmpty) navigation.navigate("SignInScreen")
-        else setModalVisible(true)
+        formEmpty ? navigation.navigate("SignInScreen") : setModalVisible(true)
     }
 
     const validateFields = () => {
+        let errors = {}
+        if(!userData.email.match(/^\S+.\S+@\S+.\S+$/)) {
+            errors.email = "The email has an incorrect format"
+        }
+        if(userData.password !== userData.re_password) {
+            errors.password = "The passwords do not match"
+        }
+        if(userData.username.match(/[^\S]/)) {
+            errors.username = "The username should be a single word"
+        } else if(userData.username.length > 10) {
+            errors.username = "The user name must not exceed 10 characters in length"
+        }
+        return errors
     }
 
     const signUp = async () => {
 
-        //TODO: validate fields
+        setModalSettings({
+            ...modalSettings,
+            title: "Error",
+            body: '',
+            cancelButtonTitle: "Okay",
+            isAlert: true
+        })
+
+        const generateModalBody = (data) => {
+            let result = ""
+            data.map(([key, value], index) => {
+                let title = `[${key.toUpperCase()}]`
+                let body = typeof value !== "string" ? value.join(" ") : value
+                result += `${title}\n${body}`
+                if(index !== data.length - 1) result += "\n\n"
+            })
+            return result
+        }
+
+        let errors = Object.entries(validateFields())
+        if(errors.length > 0) {
+            setModalSettings((prevState) => ({
+                ...prevState, body: generateModalBody(errors)
+            }))
+            setModalVisible(true)
+            return
+        }
 
         try {
             setDisableGoBack(true)
@@ -90,28 +129,19 @@ const SignUpScreen = ({navigation}) => {
             await UserService.createNewUser(userData)
             navigation.navigate("SignInScreen")
         } catch (error) {
-            let textBody = ""
+            console.error(error)
             if(error.code === "ERR_NETWORK") {
-                textBody = "Network Error"
+                setModalSettings((prevState) => ({
+                    ...prevState, body: "Network Error"
+                }))
+                return
             } else {
                 let responseItems = Object.entries(error.response.data)
-                responseItems.map(([key, value], index) => {
-                    textBody += `[${key.toUpperCase()}]\n ${value.join(" ")}`
-                    if(index !== responseItems.length - 1) textBody += "\n\n"
-                })
+                setModalSettings((prevState) => ({
+                    ...prevState, body: generateModalBody(responseItems)
+                }))
             }
-
-            setModalSettings({
-                ...modalSettings,
-                title: "Error",
-                body: textBody,
-                cancelButtonTitle: "Okay",
-                isAlert: true
-            })
             setModalVisible(true)
-
-            console.log(error)
-
         } finally {
             setDisableGoBack(false)
             setIsLoading(false)
