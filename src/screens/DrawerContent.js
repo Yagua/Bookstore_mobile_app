@@ -17,7 +17,6 @@ import { NO_ACTION_AVAILABLE_MESSAGE, APP_HOST } from '../../constants'
 
 const DrawerContent = (props) => {
     let { signOut, userTokens } = React.useContext(AuthContext)
-    let [isLoading, setIsLoading] = useState(false)
     let [userInfo, setUserInfo] = useState({
         username: '',
         first_name: '',

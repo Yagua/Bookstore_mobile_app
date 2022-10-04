@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -7,7 +7,8 @@ import {
     StyleSheet,
     Dimensions,
     ActivityIndicator,
-    TextInput
+    TextInput,
+    Image
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {ImageSlider} from 'react-native-image-slider-banner'
@@ -16,23 +17,84 @@ import { Badge } from "@rneui/themed";
 
 import BookComponent from '../components/BookComponent'
 import SearchService from '../service/SearchService'
+import UserService from '../service/UserService'
+import LibraryService from '../service/LibraryService'
+
 import {AuthContext} from '../context/AuthContext'
 import {APP_HOST} from '../../constants'
-
-import {books} from '../../_testdata/_data'
-import {cart} from '../../_testdata/cart'
-
-const windowWidth = Dimensions.get('window').width;
 
 const HomeScreen = ({ navigation }) => {
 
     let {userTokens} = useContext(AuthContext)
     let [isLoading, setIsLoading] = useState(false)
+    let [bookSectionsAreLoading, setBookSectionsAreLoading] = useState(false)
     let [searchTerm, setSearchTerm] = useState('')
+    let [sections, setSections] = useState([])
+    let [upcomingBooks, setUpcomingBooks] = useState([])
+    let [userRelevantInfo, setUserRelevantInfo] = useState({
+        cartItemsCount: 0,
+        picture: null
+    })
 
     const pruneBadgeNumber = (cant) => {
         if(cant > 99) return "+99"
         return cant
+    }
+
+    const getUserRelevantInfo = async () => {
+        try {
+        let profileResponse = await UserService.getUserProfile(userTokens.access)
+        setUserRelevantInfo((prevState) => ({
+            ...prevState, picture: profileResponse.picture
+        }))
+        let cartResponse = await UserService.getShoppingCart(userTokens.access)
+        setUserRelevantInfo((prevState) => ({
+            ...prevState, cartItemsCount: cartResponse.items.length
+        }))
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const bookSectionDispatcher = async (totalSections=3, booksPerSection=10) => {
+        try {
+            let categoriesResponse = await LibraryService.getAllCategories(userTokens.access)
+            let totalCategories = categoriesResponse.count
+            if(totalCategories === 0) { setSections([]); return }
+
+            let sections = []
+            let selectedCategories = []
+            let min = 1
+            let max = totalCategories - totalSections
+
+            let randomNum = Math.floor(Math.random() * (max - min + 1)) + min
+            for(let i = randomNum; i < randomNum + totalSections; i++)
+                selectedCategories.push(categoriesResponse.results[i])
+
+            for(let j = 0; j < totalSections; j++) {
+                let category = selectedCategories[j]
+                let books = await LibraryService.getBooksByCategoryId(
+                    userTokens.access, category.id
+                )
+                let selectedBooks = await books.slice(0, booksPerSection)
+
+                let sectionName = category.name.trim()
+                sectionName = sectionName[0].toUpperCase() + sectionName.substring(1)
+                sections.push({
+                    "name": sectionName,
+                    "books": selectedBooks,
+                    "viewSectionCallback": () => {
+                        navigation.navigate("SearchResult", {
+                            searchResult: books,
+                            title: sectionName
+                        })
+                    }
+                })
+            }
+            setSections(sections)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const triggerSearch = async (searchTerm) => {
@@ -46,6 +108,26 @@ const HomeScreen = ({ navigation }) => {
             console.error(error)
         }
     }
+
+    const retriveUpcomingBooks = async () => {
+        try {
+            let response = await LibraryService.getUpcomingBooks()
+            setUpcomingBooks(response.books)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
+        (async () => {
+            getUserRelevantInfo()
+
+            setBookSectionsAreLoading(true)
+            await bookSectionDispatcher()
+            await retriveUpcomingBooks()
+            setBookSectionsAreLoading(false)
+        })()
+    }, [])
 
     if(isLoading){
         return (
@@ -90,7 +172,8 @@ const HomeScreen = ({ navigation }) => {
                             setIsLoading(true)
                             let searchResult = await triggerSearch(searchTerm)
                             navigation.navigate("SearchResult", {
-                                searchResult: searchResult
+                                searchResult: searchResult,
+                                title: "Search Results"
                             })
                             setIsLoading(false)
                         }}
@@ -99,26 +182,18 @@ const HomeScreen = ({ navigation }) => {
                         onPress={() => navigation.openDrawer()}
                         activeOpacity={0.5}
                     >
-                        <View style={{
-                            backgroundColor: "#EDEDED",
-                            borderRadius: 50,
-                            width: 35,
-                            height: 35,
-                            justifyContent: "center",
-                            alignItems: "center",
-                            padding: 5
-                        }}>
-                            <Feather
-                                name="hexagon"
-                                size={25}
-                                color="#507DBC"
-                            />
-                        </View>
+                        <Image
+                            source={userRelevantInfo.picture
+                                ? {uri: `${APP_HOST}${userRelevantInfo.picture}`}
+                                : require("../assets/images/defaultUser.png")
+                            }
+                            style={{ width: 38, height: 38, borderRadius: 25}}
+                        />
                     </TouchableOpacity>
                 </View>
             </LinearGradient>
 
-            {!true ? (
+            {bookSectionsAreLoading ? (
                 <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
                     <ActivityIndicator size="large"/>
                 </View>
@@ -141,72 +216,60 @@ const HomeScreen = ({ navigation }) => {
                     </View>
                     <ImageSlider
                         preview={false}
-                        localImg={true}
-                        data={[
-                            {img: require("../assets/images/defaultBook.png")},
-                            {img: require("../assets/images/defaultBook.png")},
-                            {img: require("../assets/images/defaultBook.png")},
-                            {img: require("../assets/images/defaultBook.png")},
-                            {img: require("../assets/images/defaultBook.png")},
-                            {img: require("../assets/images/defaultBook.png")},
-                            {img: require("../assets/images/defaultBook.png")},
-                        ]}
+                        localImg={false}
+                        data={upcomingBooks.slice(1, 15).map(book => ({img: book.image}))}
                         autoPlay={true}
-                        caroselImageContainerStyle={{
-                            width: windowWidth - 30,
-                            height: 220,
-                            borderRadius: 40,
-                            marginRight: 20,
-                            marginLeft: 5,
-                            marginTop: 15,
-                        }}
-                        caroselImageStyle={{
-                            height: "100%",
-                            width: "100%",
-                            borderRadius: 20,
-                        }}
                     />
 
                     <View style={{marginTop: 10}}>
-                        <View style={styles.headerSection}>
-                            <Text style={{ fontSize: 20, fontWeight: "bold"}}>
-                                Books Category One
-                            </Text>
-                            <TouchableOpacity>
-                                <Feather
-                                    name="arrow-right-circle"
-                                    size={30}
-                                    color="#2C3D55"
-                                    style={{ marginRight: 5 }}
-                                />
-                            </TouchableOpacity>
-                        </View>
-
-                        <ScrollView
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        >
-                            {(books.slice(150, 170)).map((book, index) => (
-                                <View style={{marginRight: 10}} key={`${index}-t1`}>
-                                    <BookComponent
-                                        title={book.title}
-                                        rating={book.rating}
-                                        price={book.price}
-                                        bookId={index}
-                                        // cover={{uri: book.cover}}
-                                        cover={require("../assets/images/defaultBook.png")}
-                                        action={() =>
-                                            navigation.navigate("BookPreview", {bookData: book})
-                                        }
-                                    />
+                        {sections.map((section, index) => (
+                            <View key={index} style={{marginBottom: 15}}>
+                                <View style={styles.headerSection}>
+                                    <Text style={{ fontSize: 20, fontWeight: "bold"}}>
+                                        {section.name}
+                                    </Text>
+                                    <TouchableOpacity
+                                        onPress={section.viewSectionCallback}
+                                    >
+                                        <Feather
+                                            name="arrow-right-circle"
+                                            size={30}
+                                            color="#2C3D55"
+                                            style={{ marginRight: 5 }}
+                                        />
+                                    </TouchableOpacity>
                                 </View>
-                            ))
-                            }
-                        </ScrollView>
+
+                                <ScrollView
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                >
+                                    {section.books.map(book => (
+                                        <View style={{marginRight: 10}} key={`${book.id}-t1`}>
+                                            <BookComponent
+                                                title={book.title}
+                                                rating={book.rating}
+                                                price={book.price}
+                                                bookId={index}
+                                                cover={book.cover
+                                                    ? {uri: `${APP_HOST}${book.cover}`}
+                                                    : require("../assets/images/defaultBook.png")
+                                                }
+                                                action={() =>
+                                                    navigation.navigate("BookPreview", {bookData: book})
+                                                }
+                                            />
+                                        </View>
+                                    ))
+                                    }
+                                </ScrollView>
+                            </View>
+                        ))
+                        }
+                        <View style={{marginBottom: 50}}></View>
                     </View>
                 </ScrollView>
             )}
-
             <View style={{ position: 'absolute', right: 0, bottom: 0, margin: 25 }}>
                 <LinearGradient
                     colors={['#5485BE', '#6B91C8']}
@@ -223,10 +286,10 @@ const HomeScreen = ({ navigation }) => {
                             style={{ padding: 15 }}
                         />
                     </TouchableOpacity>
-                    {true && //show if cant of items in the cart is greater than 0
+                    {userRelevantInfo.cartItemsCount > 0 &&
                     <Badge
                         status="error"
-                        value={pruneBadgeNumber(cart.items.length)}
+                        value={pruneBadgeNumber(userRelevantInfo.cartItemsCount)}
                         badgeStyle={{ position: 'absolute', bottom: 38, left: 40 }}
                     />
                     }

@@ -5,17 +5,36 @@ import {
     ScrollView,
     Image,
     TouchableOpacity,
+    ActivityIndicator
 } from 'react-native';
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { cart } from '../../_testdata/cart';
+import UserService from '../service/UserService'
+import {AuthContext} from '../context/AuthContext'
+import {APP_HOST} from '../../constants'
 import { trimText } from '../../utils';
 
 const ShoppingCartScreen = ({ navigation }) => {
 
+    let {userTokens} = useContext(AuthContext)
     let [bookQty, setBookQty] = useState(1)
+    let [isLoading, setIsLoading] = useState(false)
+    let [userBooks, setUserBooks] = useState([])
+
+    useEffect(() => {
+        setIsLoading(true)
+        UserService.getShoppingCart(userTokens.access)
+            .then(response => {
+                setUserBooks(response.items)
+                setIsLoading(false)
+            })
+            .catch(error => {
+                console.error(error)
+                setIsLoading(false)
+            })
+    }, [])
 
     const handleQuantity = (action) => {
         if(action === "+") {
@@ -23,6 +42,14 @@ const ShoppingCartScreen = ({ navigation }) => {
         } else if(action === "-") {
             bookQty > 1 ? setBookQty(bookQty - 1) : setBookQty(1)
         }
+    }
+
+    if(isLoading){
+        return (
+            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
     }
 
     return (
@@ -53,16 +80,19 @@ const ShoppingCartScreen = ({ navigation }) => {
                     >Shopping Cart Items</Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
+                    {userBooks.length > 0 ?
                     <View>
-                        {cart.items.map((item, index) => (
+                        {userBooks.map((item) => (
                             <View
                                 style={[styles.cardContainer, {alignItems: "center"}]}
-                                key={index}
+                                key={item.id}
                             >
                                 <View>
                                     <Image
-                                        source={require('../assets/images/defaultBook.png')}
-                                        // source={{uri: item.book.cover}}
+                                        source={item.book.cover
+                                            ? {uri: `${APP_HOST}${item.book.cover}`}
+                                            : require("../assets/images/defaultBook.png")
+                                        }
                                         style={styles.bookImage}
                                     />
                                 </View>
@@ -81,7 +111,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                                             fontSize: 16,
                                             marginBottom: 5
                                         }}
-                                    >Total: ${item.quantity * item.book.price}</Text>
+                                    >Total: ${(item.quantity * item.book.price).toFixed(2)}</Text>
                                     <View style={{flexDirection: "row", alignItems: "center"}}>
                                         <Text style={{
                                             fontSize: 16,
@@ -186,10 +216,17 @@ const ShoppingCartScreen = ({ navigation }) => {
                         ))
                         }
                     </View>
+                        :
+                    <View style={{alignItems: "center"}}>
+                        <Text style={{fontStyle: "italic"}}>
+                            Shopping Cart Empty
+                        </Text>
+                    </View>
+                    }
                     <View style={{marginBottom: 145}}></View>
                 </ScrollView>
             </View>
-            {true && // dont show if the cart if empty
+            {userBooks.length > 0 &&
             <View style={styles.floatingCard}>
                 <Text
                     style={{

@@ -11,7 +11,7 @@ import {
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import * as Animatable from 'react-native-animatable';
 
 import ModalComponent from '../components/ModalComponent'

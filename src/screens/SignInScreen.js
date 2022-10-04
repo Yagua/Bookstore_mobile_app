@@ -201,8 +201,8 @@ const styles = StyleSheet.create({
         paddingVertical: 25,
     },
     logo: {
-        width: '60%',
-        height: '80%',
+        width: '55%',
+        height: '85%',
     },
     title: {
         color: '#ffffff',

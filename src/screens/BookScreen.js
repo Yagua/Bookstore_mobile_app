@@ -19,7 +19,6 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
         // restart the state of the screen
         setLines(1)
         setBookQty(1)
-        console.log("reset state (do not delete me until backend connection")
     }, [bookData])
 
     const handleQuantity = (action) => {

@@ -1,11 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
 import {
     View,
     ScrollView,
     Text,
     TouchableOpacity,
     StyleSheet,
-    ActivityIndicator
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -15,21 +13,6 @@ import {APP_HOST} from '../../constants'
 // import {AuthContext} from '../context/AuthContext'
 
 const SearchResultScreen = ({navigation, route: {params}}) => {
-    let [isLoading, setIsLoading] = useState(false)
-    // let [searchResult, setSearchResult] = useState(params.searchResult)
-    // let [searchResult, setSearchResult] = useState([])
-    // let {userTokens} = useContext(AuthContext)
-
-    // useEffect(() => {
-    //     setIsLoading(true)
-    //     SearchService.performSearch(userTokens.access, searchTerm)
-    //         .then(response => {
-    //             setSearchResult(response)
-    //             setIsLoading(false)
-    //         })
-    //         .catch(error => console.error(error))
-    // }, [searchTerm])
-
     return (
         <View style={styles.container}>
             <View style={{
@@ -54,52 +37,41 @@ const SearchResultScreen = ({navigation, route: {params}}) => {
                     fontWeight: "bold",
                     fontSize: 18
                 }}
-                >Search Results</Text>
+                >{params.title}</Text>
             </View>
 
-            {isLoading ?
-                <View style={{
-                    flex:1,
-                    justifyContent:'center',
-                    alignItems:'center',
-                    marginTop: 20
-                }}>
-                    <ActivityIndicator size="large"/>
-                </View>
-            :
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={styles.resultsContainer}>
-                        {params.searchResult.length > 0 ?
-                            <>
-                            {params.searchResult.map(book => (
-                                <View style={{marginBottom: 15}} key={`br-${book.id}`}>
-                                    <BookComponent
-                                        title={book.title}
-                                        rating={book.rating}
-                                        price={book.price}
-                                        bookId={book.id}
-                                        cover={book.cover
-                                            ? {uri: `${APP_HOST}${book.cover}`}
-                                            : require("../assets/images/defaultBook.png")
-                                        }
-                                        action={() =>
-                                            navigation.navigate("BookPreview", {bookData: book})
-                                        }
-                                    />
-                                </View>
-                            ))
-                            }
-                            </>
-                        :
-                            <View>
-                                <Text style={{fontStyle: "italic"}}>
-                                    There are not results
-                                </Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.resultsContainer}>
+                    {params.searchResult.length > 0 ?
+                        <>
+                        {params.searchResult.map(book => (
+                            <View style={{marginBottom: 15}} key={`br-${book.id}`}>
+                                <BookComponent
+                                    title={book.title}
+                                    rating={book.rating}
+                                    price={book.price}
+                                    bookId={book.id}
+                                    cover={book.cover
+                                        ? {uri: `${APP_HOST}${book.cover}`}
+                                        : require("../assets/images/defaultBook.png")
+                                    }
+                                    action={() =>
+                                        navigation.navigate("BookPreview", {bookData: book})
+                                    }
+                                />
                             </View>
+                        ))
                         }
-                    </View>
-                </ScrollView>
-            }
+                        </>
+                    :
+                        <View>
+                            <Text style={{fontStyle: "italic"}}>
+                                There are not results
+                            </Text>
+                        </View>
+                    }
+                </View>
+            </ScrollView>
         </View>
     );
 };
