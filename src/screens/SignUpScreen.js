@@ -7,6 +7,7 @@ import {
     Platform,
     TouchableOpacity,
     StatusBar,
+    ActivityIndicator
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
@@ -15,20 +16,24 @@ import { useState } from 'react';
 import * as Animatable from 'react-native-animatable';
 
 import ModalComponent from '../components/ModalComponent'
+import UserService from '../service/UserService'
 
 const SignUpScreen = ({navigation}) => {
-    let [username, setUserName] = useState('');
-    let [firstName, setFirstName] = useState('');
-    let [secondName, setSecondName] = useState('');
-    let [paternalLastName, setPaternalLastName] = useState('');
-    let [maternalLastName, setMaterenalLastName] = useState('');
-    let [email, setEmail] = useState('');
-    let [password, setPassword] = useState('');
-    let [confirmPassword, setConfirmPassword] = useState('');
-
     let [visiblePassword, setVisiblePassword] = useState(false);
     let [visibleConfirmPassword, setVisibleConfirmPassword] = useState(false);
+    let [isLoading, setIsLoading] = useState(false)
+    let [disableGoBack, setDisableGoBack] = useState(false)
     let [modalVisible, setModalVisible] = useState(false);
+    let [userData, setUserData] = useState({
+        username: '',
+        first_name: '',
+        second_name: '',
+        paternal_last_name: '',
+        maternal_last_name: '',
+        email: '',
+        password: '',
+        re_password: '',
+    })
     let [modalSettings, setModalSettings] = useState({
         title: '',
         body: '',
@@ -37,30 +42,23 @@ const SignUpScreen = ({navigation}) => {
         isAlert: false
     })
 
-    let data = {
-        username: username,
-        firstName: firstName,
-        secondName: secondName,
-        paternalLastName: paternalLastName,
-        maternalLastName: maternalLastName,
-        email: email,
-        password: password,
-        confirmPassword: confirmPassword,
+    const handleOnChange = (input, value) => {
+        setUserData((prevState) => ({...prevState, [input]: value}))
     }
 
     let allowRegister =
-        username.trim().length > 0 &&
-        firstName.trim().length > 0 &&
-        secondName.trim().length > 0 &&
-        paternalLastName.trim().length > 0 &&
-        maternalLastName.trim().length > 0 &&
-        email.trim().length > 0 &&
-        password.length > 0 &&
-        confirmPassword.length > 0
+        userData.username.trim().length > 0 &&
+        userData.first_name.trim().length > 0 &&
+        userData.second_name.trim().length > 0 &&
+        userData.paternal_last_name.trim().length > 0 &&
+        userData.maternal_last_name.trim().length > 0 &&
+        userData.email.trim().length > 0 &&
+        userData.password.length > 0 &&
+        userData.re_password.length > 0
 
     const checkFormValues = () => {
-        for(let key in data) {
-            if(data[key].length > 0) return false
+        for(let key in userData) {
+            if(userData[key].length > 0) return false
         }
         return true
     }
@@ -79,19 +77,45 @@ const SignUpScreen = ({navigation}) => {
         else setModalVisible(true)
     }
 
-    const signUp = () => {
-        if(data.password !== data.confirmPassword) {
+    const validateFields = () => {
+    }
+
+    const signUp = async () => {
+
+        //TODO: validate fields
+
+        try {
+            setDisableGoBack(true)
+            setIsLoading(true)
+            await UserService.createNewUser(userData)
+            navigation.navigate("SignInScreen")
+        } catch (error) {
+            let textBody = ""
+            if(error.code === "ERR_NETWORK") {
+                textBody = "Network Error"
+            } else {
+                let responseItems = Object.entries(error.response.data)
+                responseItems.map(([key, value], index) => {
+                    textBody += `[${key.toUpperCase()}]\n ${value.join(" ")}`
+                    if(index !== responseItems.length - 1) textBody += "\n\n"
+                })
+            }
+
             setModalSettings({
                 ...modalSettings,
-                title: "Alert",
-                body: "The given passwords do not match.",
+                title: "Error",
+                body: textBody,
                 cancelButtonTitle: "Okay",
                 isAlert: true
             })
             setModalVisible(true)
-            return
+
+            console.log(error)
+
+        } finally {
+            setDisableGoBack(false)
+            setIsLoading(false)
         }
-        console.log("well")
     }
 
     return (
@@ -136,7 +160,7 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Your username"
-                            onChangeText={(value) => setUserName(value)}
+                            onChangeText={(value) => handleOnChange("username", value)}
                         />
                     </View>
 
@@ -146,7 +170,7 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Your first name"
-                            onChangeText={(value) => setFirstName(value)}
+                            onChangeText={(value) => handleOnChange("first_name", value)}
                         />
                     </View>
 
@@ -156,7 +180,7 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Your second name (Opt)"
-                            onChangeText={(value) => setSecondName(value)}
+                            onChangeText={(value) => handleOnChange("second_name", value)}
                         />
                     </View>
 
@@ -166,7 +190,7 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Your paternal last name"
-                            onChangeText={(value) => setPaternalLastName(value)}
+                            onChangeText={(value) => handleOnChange("paternal_last_name", value)}
                         />
                     </View>
 
@@ -176,7 +200,7 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Your maternal last name (Opt)"
-                            onChangeText={(value) => setMaterenalLastName(value)}
+                            onChangeText={(value) => handleOnChange("maternal_last_name", value)}
                         />
                     </View>
 
@@ -186,7 +210,7 @@ const SignUpScreen = ({navigation}) => {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Your email"
-                            onChangeText={(value) => setEmail(value)}
+                            onChangeText={(value) => handleOnChange("email", value)}
                         />
                     </View>
 
@@ -199,7 +223,7 @@ const SignUpScreen = ({navigation}) => {
                             style={styles.textInput}
                             placeholder="Your password"
                             secureTextEntry={!visiblePassword}
-                            onChangeText={(value) => setPassword(value)}
+                            onChangeText={(value) => handleOnChange("password", value)}
                         />
                         <TouchableOpacity onPress={() => {
                             setVisiblePassword(!visiblePassword)
@@ -221,7 +245,7 @@ const SignUpScreen = ({navigation}) => {
                             style={styles.textInput}
                             placeholder="Confirm password"
                             secureTextEntry={!visibleConfirmPassword}
-                            onChangeText={(value) => setConfirmPassword(value)}
+                            onChangeText={(value) => handleOnChange("re_password", value)}
                         />
                         <TouchableOpacity onPress={() => {
                             setVisibleConfirmPassword(!visibleConfirmPassword)
@@ -236,8 +260,8 @@ const SignUpScreen = ({navigation}) => {
 
                     <View style={styles.button}>
                         <TouchableOpacity style={styles.signIn}
-                            disabled={!allowRegister}
-                            onPress={signUp}
+                            disabled={!allowRegister || disableGoBack}
+                            onPress={!isLoading ? signUp : null}
                             activeOpacity={0.8}
                         >
                             <LinearGradient
@@ -246,7 +270,11 @@ const SignUpScreen = ({navigation}) => {
                                     : ["#829193", "#75777B"]}
                                 style={styles.signIn}
                             >
-                                <Text style={styles.textSign}>Sign Up</Text>
+                                {isLoading ?
+                                    <ActivityIndicator size="large"/>
+                                    :
+                                    <Text style={styles.textSign}>Sign Up</Text>
+                                }
                             </LinearGradient>
                         </TouchableOpacity>
 
@@ -257,6 +285,7 @@ const SignUpScreen = ({navigation}) => {
                                     borderColor: '#507DBC',
                                 },
                             ]}
+                            disabled={disableGoBack}
                             onPress={goBack}
                             activeOpacity={0.5}
                         >

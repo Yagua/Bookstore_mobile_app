@@ -26,6 +26,7 @@ const SignInScreen = ({ navigation }) => {
     let [username, setUserName] = useState('');
     let [password, setPassword] = useState('');
     let [visiblePassword, setVisiblePassword] = useState(false);
+    let [disableSignUp, setDisableSignUp] = useState(false)
     let [modalVisible, setModalVisible] = useState(false);
     let [modalSettings, setModalSettings] = useState({
         title: '',
@@ -43,36 +44,32 @@ const SignInScreen = ({ navigation }) => {
 
     let allowLogin = username.trim().length > 0 && password.length > 0
 
-    const handleLogin = () => {
-        setIsLoading(true)
-        AuthService.login(username, password)
-            .then(response => {
-                (async () => {
-                    await signIn(response)
-                    setIsLoading(false)
-                })()
-            })
-            .catch(error => {
-                setIsLoading(false)
-                setModalSettings((prevState) => ({
-                    ...prevState,
-                    isAlert: true,
-                    title: "Alert",
-                    body: "User identified with the given credentials not fonud",
-                    acceptButtonTitle: "Accept",
-                    cancelButtonTitle: "Cancel",
-                }))
-                setModalVisible(true)
-                console.error(error)
-            })
-    }
+    const handleLogin = async () => {
+        try {
+            setDisableSignUp(true)
+            setIsLoading(true)
+            let response = await AuthService.login(username, password)
+            await signIn(response)
 
-    if(isLoading){
-        return (
-            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                <ActivityIndicator size="large"/>
-            </View>
-        );
+        } catch (error) {
+            let modalBody = error.code === "ERR_NETWORK"
+                ? "Network Error"
+                : error.response.data.error
+
+            setModalSettings((prevState) => ({
+                ...prevState,
+                isAlert: true,
+                title: "Error",
+                body: modalBody,
+                acceptButtonTitle: "Accept",
+                cancelButtonTitle: "Ok",
+            }))
+            setModalVisible(true)
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+            setDisableSignUp(false)
+        }
     }
 
     return (
@@ -124,10 +121,8 @@ const SignInScreen = ({ navigation }) => {
 
                     <View style={styles.button}>
                         <TouchableOpacity style={styles.signIn}
-                            disabled={!allowLogin}
-                            onPress={() => {
-                                handleLogin()
-                            }}
+                            disabled={!allowLogin || disableSignUp}
+                            onPress={!isLoading ? handleLogin : null}
                             activeOpacity={0.8}
                         >
                             <LinearGradient
@@ -136,7 +131,11 @@ const SignInScreen = ({ navigation }) => {
                                     : ["#949EA0", "#75777B"]}
                                 style={styles.signIn}
                             >
-                                <Text style={styles.textSign}>Sign In</Text>
+                                {isLoading ?
+                                    <ActivityIndicator size="large"/>
+                                    :
+                                    <Text style={styles.textSign}>Sign In</Text>
+                                }
                             </LinearGradient>
                         </TouchableOpacity>
 
@@ -149,6 +148,7 @@ const SignInScreen = ({ navigation }) => {
                             ]}
                             onPress={() => navigation.navigate("SignUpScreen")}
                             activeOpacity={0.5}
+                            disabled={disableSignUp}
                         >
                             <Text style={[styles.textSign, { color: '#507DBC' }]}>
                                 Sign Up

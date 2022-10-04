@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, View, Pressable, Text } from 'react-native';
+import { Modal, StyleSheet, View, Pressable, Text, ScrollView} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
 const ModalComponent = ({
@@ -30,10 +30,12 @@ const ModalComponent = ({
                     >
                         {title}
                     </Text>
-                    <Text style={styles.modalText}>
-                        {body}
-                    </Text>
-                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                    <ScrollView style={{maxHeight: 80}}>
+                        <Text style={styles.modalText}>
+                            {body}
+                        </Text>
+                    </ScrollView>
+                    <View style={{ flexDirection: 'row', marginTop: 15 }}>
                         {!isAlert &&
                         <Pressable
                             style={[styles.modalButton, { marginRight: 12 }]}
@@ -80,6 +82,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+        width: "80%"
     },
     modalButton: {
         backgroundColor: '#58A1E8',

@@ -34,6 +34,11 @@ class UserService {
             }
         }).then(response => response.data)
     }
+
+    createNewUser(user) {
+        return axios.post(API_BASE_URL + "/auth/users/", user)
+            .then(response => response.data)
+    }
 }
 
 export default new UserService()
