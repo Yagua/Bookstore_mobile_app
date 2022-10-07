@@ -18,23 +18,9 @@ import { trimText } from '../../utils';
 
 const ShoppingCartScreen = ({ navigation }) => {
 
-    let {userTokens} = useContext(AuthContext)
+    let {userTokens, userCartInfo, setUserCartInfo} = useContext(AuthContext)
     let [bookQty, setBookQty] = useState(1)
     let [isLoading, setIsLoading] = useState(false)
-    let [cartItems, setCartItems] = useState([])
-
-    useEffect(() => {
-        setIsLoading(true)
-        ShoppingCartService.getShoppingCart(userTokens.access)
-            .then(response => {
-                setCartItems(response.items)
-                setIsLoading(false)
-            })
-            .catch(error => {
-                console.error(error)
-                setIsLoading(false)
-            })
-    }, [])
 
     const handleQuantity = (action) => {
         if(action === "+") {
@@ -47,7 +33,7 @@ const ShoppingCartScreen = ({ navigation }) => {
     const handleDropItem = async (itemId) => {
         ShoppingCartService.deleteItemFromCart(userTokens.access, itemId)
             .then(response => {
-                setCartItems(response.items)
+                setUserCartInfo(response)
             })
             .catch(error => console.error(error))
     }
@@ -88,9 +74,9 @@ const ShoppingCartScreen = ({ navigation }) => {
                     >Shopping Cart Items</Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {cartItems.length > 0 ?
+                    {userCartInfo.items.length > 0 ?
                     <View>
-                        {cartItems.map((item) => (
+                        {userCartInfo.items.map((item) => (
                             <View
                                 style={[styles.cardContainer, {alignItems: "center"}]}
                                 key={item.id}
@@ -235,7 +221,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                     <View style={{marginBottom: 145}}></View>
                 </ScrollView>
             </View>
-            {cartItems.length > 0 &&
+            {userCartInfo.items.length > 0 &&
             <View style={styles.floatingCard}>
                 <Text
                     style={{

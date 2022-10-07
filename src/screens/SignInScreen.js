@@ -18,6 +18,7 @@ import * as Animatable from 'react-native-animatable';
 
 import { AuthContext } from "../context/AuthContext";
 import AuthService from '../service/AuthService'
+import ShoppingCartService from '../service/ShoppingCartService';
 import ModalComponent from '../components/ModalComponent'
 
 let logo = require('../assets/images/logoTransparent.png');
@@ -48,9 +49,16 @@ const SignInScreen = ({ navigation }) => {
         try {
             setDisableSignUp(true)
             setIsLoading(true)
-            let response = await AuthService.login(username, password)
-            await signIn(response)
-
+            let userInfo = await AuthService.login(username, password)
+            let userCartInfo = await ShoppingCartService.getShoppingCart(
+                userInfo.tokens.access
+            )
+            let data = {
+                profile: userInfo.profile,
+                tokens: userInfo.tokens,
+                userCartInfo: userCartInfo
+            }
+            await signIn(data)
         } catch (error) {
             let modalBody = error.code === "ERR_NETWORK"
                 ? "Network Error"

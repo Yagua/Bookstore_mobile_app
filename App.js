@@ -20,14 +20,16 @@ export default function App() {
 
     let [userTokens, setUserTokens] = useState(null)
     let [userInfo, setUserInfo] = useState(null)
+    let [userCartInfo, setUserCartInfo] = useState(null)
 
     const retriveStoredInfo = async () => {
         try {
             let retrivedData = await AsyncStorage.getItem("userInfo")
             if(!retrivedData) return
-            let userInfo = await JSON.parse(retrivedData)
-            setUserInfo(userInfo.profile)
-            setUserTokens(userInfo.tokens)
+            let data = await JSON.parse(retrivedData)
+            setUserInfo(data.profile)
+            setUserCartInfo(data.userCartInfo)
+            setUserTokens(data.tokens)
 
         } catch (error) {
             console.error(error)
@@ -39,14 +41,16 @@ export default function App() {
     }, [])
 
 
-    const signIn = async (response) => {
-        const userInfo = response.profile
-        const tokens = response.tokens
+    const signIn = async (data) => {
+        const userInfo = data.profile
+        const tokens = data.tokens
+        const userCartInfo = data.userCartInfo
 
         try {
-            await AsyncStorage.setItem("userInfo", JSON.stringify(response))
-            setUserTokens(tokens)
+            await AsyncStorage.setItem("userInfo", JSON.stringify(data))
+            setUserCartInfo(userCartInfo)
             setUserInfo(userInfo)
+            setUserTokens(tokens)
         } catch (error) {
             console.error(error)
         }
@@ -57,13 +61,23 @@ export default function App() {
             await AsyncStorage.removeItem("userInfo")
             setUserTokens(null)
             setUserInfo(null)
+            setUserCartInfo(null)
         } catch (error) {
             console.error(error)
         }
     }
 
     return (
-        <AuthContext.Provider value={{signIn, signOut, userTokens, userInfo}}>
+        <AuthContext.Provider value={{
+            signIn,
+            signOut,
+            userTokens,
+            setUserTokens,
+            userInfo,
+            setUserInfo,
+            userCartInfo,
+            setUserCartInfo,
+        }}>
             <NavigationContainer theme={DefaultTheme}>
                 {userTokens !== null ? (
                     <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />}>

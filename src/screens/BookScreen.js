@@ -16,7 +16,7 @@ import {AuthContext} from '../context/AuthContext'
 
 const BookScreen = ({navigation, route: { params: {bookData} }}) => {
 
-    let {userTokens} = useContext(AuthContext)
+    let {userTokens, setUserCartInfo} = useContext(AuthContext)
     let [lines, setLines] = useState(1)
     let [isBookAdded, setIsBookAdded] = useState(false)
     let [isBeingAdded, setIsBeingAdded] = useState(false)
@@ -40,10 +40,14 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
     const addItemToCart = async (bookId, qty) => {
         try {
             setIsBeingAdded(true)
-            await ShoppingCartService.addItemToCart(userTokens.access, {
-                book_id: bookId,
-                quantity: qty
-            })
+            let cartInfo = await ShoppingCartService.addItemToCart(
+                userTokens.access,
+                {
+                    book_id: bookId,
+                    quantity: qty
+                }
+            )
+            setUserCartInfo(cartInfo)
             setIsBeingAdded(false)
             setIsBookAdded(true)
         } catch (error) {

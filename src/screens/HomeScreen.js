@@ -16,44 +16,23 @@ import { Badge } from "@rneui/themed";
 
 import BookComponent from '../components/BookComponent'
 import SearchService from '../service/SearchService'
-import UserService from '../service/UserService'
 import LibraryService from '../service/LibraryService'
-import ShoppingCartService from '../service/ShoppingCartService'
 
 import {AuthContext} from '../context/AuthContext'
 import {APP_HOST} from '../../constants'
 
 const HomeScreen = ({ navigation }) => {
 
-    let {userTokens} = useContext(AuthContext)
+    let {userTokens, userCartInfo, userInfo} = useContext(AuthContext)
     let [isLoading, setIsLoading] = useState(false)
     let [bookSectionsAreLoading, setBookSectionsAreLoading] = useState(false)
     let [searchTerm, setSearchTerm] = useState('')
     let [sections, setSections] = useState([])
     let [upcomingBooks, setUpcomingBooks] = useState([])
-    let [userRelevantInfo, setUserRelevantInfo] = useState({
-        cartItemsCount: 0,
-        picture: null
-    })
 
     const pruneBadgeNumber = (cant) => {
         if(cant > 99) return "+99"
         return cant
-    }
-
-    const getUserRelevantInfo = async () => {
-        try {
-        let profileResponse = await UserService.getUserProfile(userTokens.access)
-        setUserRelevantInfo((prevState) => ({
-            ...prevState, picture: profileResponse.picture
-        }))
-        let cartResponse = await ShoppingCartService.getShoppingCart(userTokens.access)
-        setUserRelevantInfo((prevState) => ({
-            ...prevState, cartItemsCount: cartResponse.items.length
-        }))
-        } catch (error) {
-            console.error(error)
-        }
     }
 
     const bookSectionDispatcher = async (totalSections=3, booksPerSection=10) => {
@@ -120,8 +99,6 @@ const HomeScreen = ({ navigation }) => {
 
     useEffect(() => {
         (async () => {
-            getUserRelevantInfo()
-
             setBookSectionsAreLoading(true)
             await bookSectionDispatcher()
             await retriveUpcomingBooks()
@@ -183,8 +160,8 @@ const HomeScreen = ({ navigation }) => {
                         activeOpacity={0.5}
                     >
                         <Image
-                            source={userRelevantInfo.picture
-                                ? {uri: `${APP_HOST}${userRelevantInfo.picture}`}
+                            source={userInfo.picture
+                                ? {uri: `${APP_HOST}${userInfo.picture}`}
                                 : require("../assets/images/defaultUser.png")
                             }
                             style={{ width: 38, height: 38, borderRadius: 25}}
@@ -286,10 +263,10 @@ const HomeScreen = ({ navigation }) => {
                             style={{ padding: 15 }}
                         />
                     </TouchableOpacity>
-                    {userRelevantInfo.cartItemsCount > 0 &&
+                    {userCartInfo.items.length > 0 &&
                     <Badge
                         status="error"
-                        value={pruneBadgeNumber(userRelevantInfo.cartItemsCount)}
+                        value={pruneBadgeNumber(userCartInfo.items.length)}
                         badgeStyle={{ position: 'absolute', bottom: 38, left: 40 }}
                     />
                     }
