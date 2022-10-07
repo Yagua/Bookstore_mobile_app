@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import {
     ScrollView,
     View,
@@ -9,16 +9,24 @@ import {
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
+
 import {APP_HOST} from '../../constants'
+import ShoppingCartService from '../service/ShoppingCartService'
+import {AuthContext} from '../context/AuthContext'
 
 const BookScreen = ({navigation, route: { params: {bookData} }}) => {
+
+    let {userTokens} = useContext(AuthContext)
     let [lines, setLines] = useState(1)
+    let [isBookAdded, setIsBookAdded] = useState(false)
+    let [isBeingAdded, setIsBeingAdded] = useState(false)
     let [bookQty, setBookQty] = useState(1)
 
     useEffect(() => {
         // restart the state of the screen
         setLines(1)
         setBookQty(1)
+        setIsBookAdded(false)
     }, [bookData])
 
     const handleQuantity = (action) => {
@@ -26,6 +34,20 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
             setBookQty(bookQty + 1)
         } else if(action === "-") {
             bookQty > 1 ? setBookQty(bookQty - 1) : setBookQty(1)
+        }
+    }
+
+    const addItemToCart = async (bookId, qty) => {
+        try {
+            setIsBeingAdded(true)
+            await ShoppingCartService.addItemToCart(userTokens.access, {
+                book_id: bookId,
+                quantity: qty
+            })
+            setIsBeingAdded(false)
+            setIsBookAdded(true)
+        } catch (error) {
+            console.error(error)
         }
     }
 
@@ -149,109 +171,132 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                     </View>
 
                     <View style={{marginTop: 20}}>
-                        <View style={{
-                            borderWidth: 1,
-                            borderColor: "#B5BCBE",
-                            paddingTop: 10,
-                            paddingHorizontal: 15,
-                            borderRadius: 10,
-                            marginBottom: 10
-                        }}>
+                        {isBookAdded ?
+                            <View style={{
+                                borderWidth: 1,
+                                borderColor: "#ACE2A4",
+                                backgroundColor: "#CEEEC4",
+                                padding: 8,
+                                borderRadius: 10,
+                                marginBottom: 10,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Text style={{
+                                    fontSize: 16,
+                                    fontStyle: "italic",
+                                    color: "#7C837C"
+                                }}
+                                >Item Added to Cart!</Text>
+                            </View>
+                        :
+                            <View style={{
+                                borderWidth: 1,
+                                borderColor: "#B5BCBE",
+                                paddingTop: 10,
+                                paddingHorizontal: 15,
+                                borderRadius: 10,
+                                marginBottom: 10
+                            }}>
 
-                            <Text style={{
-                                fontSize: 16,
-                                fontWeight: "500",
-                                marginBottom: 8
-                            }}
-                            >Total: ${(bookData.price * bookQty).toFixed(2)} </Text>
-
-                            <View style={{flexDirection: "row", alignItems: "center"}}>
                                 <Text style={{
                                     fontSize: 16,
                                     fontWeight: "500",
+                                    marginBottom: 8
                                 }}
-                                >Quantity: </Text>
-                                <TouchableOpacity
-                                    onPress={() => {handleQuantity("-")}}
-                                    activeOpacity={0.6}
-                                    style={{
-                                        borderWidth: 1,
-                                        borderColor: '#cccccc',
-                                        padding: 5
+                                >Total: ${(bookData.price * bookQty).toFixed(2)} </Text>
+
+                                <View style={{flexDirection: "row", alignItems: "center"}}>
+                                    <Text style={{
+                                        fontSize: 16,
+                                        fontWeight: "500",
                                     }}
-                                >
-                                    <Feather
-                                        name="minus"
-                                        color="#507DBC"
-                                        size={20}
-                                    />
-                                </TouchableOpacity>
+                                    >Quantity: </Text>
+                                    <TouchableOpacity
+                                        onPress={() => {handleQuantity("-")}}
+                                        disabled={isBeingAdded}
+                                        activeOpacity={0.6}
+                                        style={{
+                                            borderWidth: 1,
+                                            borderColor: '#cccccc',
+                                            padding: 5
+                                        }}
+                                    >
+                                        <Feather
+                                            name="minus"
+                                            color="#507DBC"
+                                            size={20}
+                                        />
+                                    </TouchableOpacity>
 
-                                <Text style={{
-                                    borderTopWidth: 1,
-                                    borderBottomWidth: 1,
-                                    borderColor: '#cccccc',
-                                    paddingVertical: 4,
-                                    paddingHorizontal: 20,
-                                    color: 'grey',
-                                    fontSize: 17,
-                                }}>{bookQty}</Text>
-
-                                <TouchableOpacity
-                                    onPress={() => {handleQuantity("+")}}
-                                    activeOpacity={0.6}
-                                    style={{
-                                        borderWidth: 1,
+                                    <Text style={{
+                                        borderTopWidth: 1,
+                                        borderBottomWidth: 1,
                                         borderColor: '#cccccc',
-                                        padding: 5
-                                    }}
-                                >
-                                    <Feather
-                                        name="plus"
-                                        color="#507DBC"
-                                        size={20}
-                                    />
-                                </TouchableOpacity>
-                            </View>
+                                        paddingVertical: 4,
+                                        paddingHorizontal: 20,
+                                        color: 'grey',
+                                        fontSize: 17,
+                                    }}>{bookQty}</Text>
 
-                            <View style={{flexDirection: "row", justifyContent: "center"}}>
-                                <TouchableOpacity
-                                    onPress={() => {}}
-                                    activeOpacity={0.8}
-                                >
-                                    <LinearGradient
-                                        colors={['#58A1E8', '#5485BE']}
-                                        style={[styles.button, {
-                                            marginRight: 8,
-                                            marginVertical: 15
-                                        }]}
+                                    <TouchableOpacity
+                                        onPress={() => {handleQuantity("+")}}
+                                        disabled={isBeingAdded}
+                                        activeOpacity={0.6}
+                                        style={{
+                                            borderWidth: 1,
+                                            borderColor: '#cccccc',
+                                            padding: 5
+                                        }}
                                     >
-                                        <Text style={{
-                                            color: "#ffffff",
-                                            fontWeight: "bold"
-                                        }}>Buy now</Text>
-                                    </LinearGradient>
-                                </TouchableOpacity>
+                                        <Feather
+                                            name="plus"
+                                            color="#507DBC"
+                                            size={20}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
 
-                                <TouchableOpacity
-                                    onPress={() => {}}
-                                    activeOpacity={0.8}
-                                >
-                                    <LinearGradient
-                                        colors={['#58A1E8', '#5485BE']}
-                                        style={[styles.button, {
-                                            marginRight: 8,
-                                            marginVertical: 15
-                                        }]}
+                                <View style={{flexDirection: "row", justifyContent: "center"}}>
+                                    <TouchableOpacity
+                                        onPress={() => {}}
+                                        activeOpacity={0.8}
                                     >
-                                        <Text style={{
-                                            color: "#ffffff",
-                                            fontWeight: "bold"
-                                        }}>Add to Cart</Text>
-                                    </LinearGradient>
-                                </TouchableOpacity>
+                                        <LinearGradient
+                                            colors={['#58A1E8', '#5485BE']}
+                                            style={[styles.button, {
+                                                marginRight: 8,
+                                                marginVertical: 15
+                                            }]}
+                                        >
+                                            <Text style={{
+                                                color: "#ffffff",
+                                                fontWeight: "bold"
+                                            }}>Buy now</Text>
+                                        </LinearGradient>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => addItemToCart(bookData.id, bookQty)}
+                                        disabled={isBeingAdded}
+                                        activeOpacity={0.8}
+                                    >
+                                        <LinearGradient
+                                            colors={['#58A1E8', '#5485BE']}
+                                            style={[styles.button, {
+                                                marginRight: 8,
+                                                marginVertical: 15
+                                            }]}
+                                        >
+                                            <Text style={{
+                                                color: "#ffffff",
+                                                fontWeight: "bold"
+                                            }}>Add to Cart</Text>
+                                        </LinearGradient>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
+                        }
                     </View>
 
                     <View style={{alignItems: "center"}}>

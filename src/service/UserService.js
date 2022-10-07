@@ -27,14 +27,6 @@ class UserService {
         }).then(response => response.data)
     }
 
-    getShoppingCart(accessToken) {
-        return axios.get(API_BASE_URL + "/carts/user-cart/", {
-            headers: {
-                "Authorization": `JWT ${accessToken}`
-            }
-        }).then(response => response.data)
-    }
-
     createNewUser(user) {
         return axios.post(API_BASE_URL + "/auth/users/", user)
             .then(response => response.data)

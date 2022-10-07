@@ -6,17 +6,79 @@ import {
     Image,
     TouchableOpacity,
     TextInput,
+    ActivityIndicator
 } from 'react-native';
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import UserService from '../service/UserService'
+import {AuthContext} from '../context/AuthContext'
+import {APP_HOST} from '../../constants'
 import {profile} from '../../_testdata/profile'
 
 const ProfileScreen = ({navigation}) => {
 
+    let {userTokens} = useContext(AuthContext)
     let [editGeneralInfo, setEditGeneralInfo] = useState(false)
-    let [editContactInfo, setEditContactInfo] = useState(false)
+    let [editSecondaryInfo, setEdiSecondaryInfo] = useState(false)
+    let [isLoading, setIsLoading] = useState(false)
+    let [generalInfo, setGeneralInfo] = useState({
+        email: "",
+        first_name: "",
+        maternal_last_name: "",
+        paternal_last_name: "",
+        second_name: "",
+        username: "",
+    })
+    let [secondaryInfo, setSecondaryInfo] = useState({
+        adress_line_1: "",
+        adress_line_2: "",
+        city: "",
+        country: "",
+        phone: "",
+        state_provice_region: "",
+        zip_code: "",
+        picture: null,
+    })
+
+    useEffect(() => {
+        setIsLoading(true)
+        UserService.getUserProfile(userTokens.access)
+            .then(response => {
+                let {user, ...secondaryInformation} = response
+                setGeneralInfo((prevState) => ({
+                    ...prevState,
+                    email: user.email,
+                    first_name: user.first_name,
+                    maternal_last_name: user.maternal_last_name,
+                    paternal_last_name: user.paternal_last_name,
+                    second_name: user.second_name,
+                    username: user.username,
+                }))
+                setSecondaryInfo((prevState) => ({
+                    ...prevState,
+                    adress_line_1: secondaryInformation.adress_line_1,
+                    adress_line_2: secondaryInformation.adress_line_2,
+                    city: secondaryInformation.city,
+                    country: secondaryInformation.country,
+                    phone: secondaryInformation.phone,
+                    state_provice_region: secondaryInformation.state_provice_region,
+                    zip_code: secondaryInformation.zip_code,
+                    picture: secondaryInformation.picture,
+                }))
+                setIsLoading(false)
+            })
+            .catch(error => console.error(error))
+    }, [])
+
+    if(isLoading){
+        return (
+            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
+    }
 
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -47,7 +109,10 @@ const ProfileScreen = ({navigation}) => {
                         activeOpacity={0.7}
                     >
                         <Image
-                            source={require("../assets/images/defaultUser.png")}
+                            source={secondaryInfo.picture
+                                ? {uri: `${APP_HOST}${secondaryInfo.picture}`}
+                                : require("../assets/images/defaultUser.png")
+                            }
                             style={styles.pictureProfile}
                         />
                     </TouchableOpacity>
@@ -57,12 +122,12 @@ const ProfileScreen = ({navigation}) => {
                         fontSize: 25,
                         color: "#ffffff",
                     }}
-                    >{profile.user.first_name} {profile.user.paternal_last_name}</Text>
+                    >{generalInfo.first_name} {generalInfo.paternal_last_name}</Text>
                     <Text style={{
                         fontSize: 16,
                         color: "#D4D8D9",
                     }}
-                    >@{profile.user.username}</Text>
+                    >@{generalInfo.username}</Text>
                 </View>
             </LinearGradient>
 
@@ -92,7 +157,7 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Username</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.user.username}
+                                defaultValue={generalInfo.username}
                                 placeholder={"Your username"}
                                 editable={editGeneralInfo}
                             />
@@ -106,7 +171,7 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Email</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.user.email}
+                                defaultValue={generalInfo.email}
                                 placeholder={"Your email"}
                                 editable={editGeneralInfo}
                             />
@@ -120,7 +185,7 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>First Name</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.user.first_name}
+                                defaultValue={generalInfo.first_name}
                                 placeholder={"Your first name"}
                                 editable={editGeneralInfo}
                             />
@@ -134,7 +199,7 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Second Name</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.user.second_name}
+                                defaultValue={generalInfo.second_name}
                                 placeholder={"Your second name"}
                                 editable={editGeneralInfo}
                             />
@@ -148,7 +213,7 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Paternal Last Name</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.user.paternal_last_name}
+                                defaultValue={generalInfo.paternal_last_name}
                                 placeholder={"Your paternal last name"}
                                 editable={editGeneralInfo}
                             />
@@ -161,7 +226,7 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Maternal Last Name</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.user.maternal_last_name}
+                                defaultValue={generalInfo.maternal_last_name}
                                 placeholder={"Your maternal last name"}
                                 editable={editGeneralInfo}
                             />
@@ -228,7 +293,7 @@ const ProfileScreen = ({navigation}) => {
                         <Text style={styles.sectionTitle}
                         >Contact & Location</Text>
                         <TouchableOpacity
-                            onPress={() => setEditContactInfo(true)}
+                            onPress={() => setEdiSecondaryInfo(true)}
                         >
                             <Text style={{
                                 fontStyle: "italic",
@@ -248,9 +313,9 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Adress Line 1</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.adress_line_1}
+                                defaultValue={secondaryInfo.adress_line_1}
                                 placeholder={"Adress line 1"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
 
@@ -262,9 +327,9 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Adress Line 2</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.adress_line_2}
+                                defaultValue={secondaryInfo.adress_line_2}
                                 placeholder={"Adress line 2"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
 
@@ -276,9 +341,9 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Country</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.country}
+                                defaultValue={secondaryInfo.country}
                                 placeholder={"Country"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
 
@@ -290,9 +355,9 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>City</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.city}
+                                defaultValue={secondaryInfo.city}
                                 placeholder={"City"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
 
@@ -304,9 +369,9 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>State/Province</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.state_province_region}
+                                defaultValue={secondaryInfo.state_province_region}
                                 placeholder={"State/Province/Region"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
 
@@ -318,9 +383,9 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Zip Code</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.zip_code}
+                                defaultValue={secondaryInfo.zip_code}
                                 placeholder={"Zip code"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
 
@@ -331,14 +396,14 @@ const ProfileScreen = ({navigation}) => {
                             <Text style={styles.textInputLabel}>Phone</Text>
                             <TextInput
                                 style={styles.textInput}
-                                defaultValue={profile.phone}
+                                defaultValue={secondaryInfo.phone}
                                 placeholder={"Your phone"}
-                                editable={editContactInfo}
+                                editable={editSecondaryInfo}
                             />
                         </View>
                     </View>
 
-                    {editContactInfo &&
+                    {editSecondaryInfo &&
                     <View style={styles.bottonsContainer}>
                         <TouchableOpacity activeOpacity={0.7}>
                             <LinearGradient
@@ -366,7 +431,7 @@ const ProfileScreen = ({navigation}) => {
                         <TouchableOpacity
                             activeOpacity={0.7}
                             style={{marginLeft: 10}}
-                            onPress={() => setEditContactInfo(false)}
+                            onPress={() => setEdiSecondaryInfo(false)}
                         >
                             <LinearGradient
                                 colors={['#CF0F08', '#B82722']}

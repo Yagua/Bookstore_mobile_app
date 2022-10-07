@@ -18,6 +18,7 @@ import BookComponent from '../components/BookComponent'
 import SearchService from '../service/SearchService'
 import UserService from '../service/UserService'
 import LibraryService from '../service/LibraryService'
+import ShoppingCartService from '../service/ShoppingCartService'
 
 import {AuthContext} from '../context/AuthContext'
 import {APP_HOST} from '../../constants'
@@ -46,7 +47,7 @@ const HomeScreen = ({ navigation }) => {
         setUserRelevantInfo((prevState) => ({
             ...prevState, picture: profileResponse.picture
         }))
-        let cartResponse = await UserService.getShoppingCart(userTokens.access)
+        let cartResponse = await ShoppingCartService.getShoppingCart(userTokens.access)
         setUserRelevantInfo((prevState) => ({
             ...prevState, cartItemsCount: cartResponse.items.length
         }))

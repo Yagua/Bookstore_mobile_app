@@ -11,7 +11,7 @@ import { useContext, useEffect, useState } from 'react'
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import UserService from '../service/UserService'
+import ShoppingCartService from '../service/ShoppingCartService'
 import {AuthContext} from '../context/AuthContext'
 import {APP_HOST} from '../../constants'
 import { trimText } from '../../utils';
@@ -21,13 +21,13 @@ const ShoppingCartScreen = ({ navigation }) => {
     let {userTokens} = useContext(AuthContext)
     let [bookQty, setBookQty] = useState(1)
     let [isLoading, setIsLoading] = useState(false)
-    let [userBooks, setUserBooks] = useState([])
+    let [cartItems, setCartItems] = useState([])
 
     useEffect(() => {
         setIsLoading(true)
-        UserService.getShoppingCart(userTokens.access)
+        ShoppingCartService.getShoppingCart(userTokens.access)
             .then(response => {
-                setUserBooks(response.items)
+                setCartItems(response.items)
                 setIsLoading(false)
             })
             .catch(error => {
@@ -42,6 +42,14 @@ const ShoppingCartScreen = ({ navigation }) => {
         } else if(action === "-") {
             bookQty > 1 ? setBookQty(bookQty - 1) : setBookQty(1)
         }
+    }
+
+    const handleDropItem = async (itemId) => {
+        ShoppingCartService.deleteItemFromCart(userTokens.access, itemId)
+            .then(response => {
+                setCartItems(response.items)
+            })
+            .catch(error => console.error(error))
     }
 
     if(isLoading){
@@ -80,9 +88,9 @@ const ShoppingCartScreen = ({ navigation }) => {
                     >Shopping Cart Items</Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {userBooks.length > 0 ?
+                    {cartItems.length > 0 ?
                     <View>
-                        {userBooks.map((item) => (
+                        {cartItems.map((item) => (
                             <View
                                 style={[styles.cardContainer, {alignItems: "center"}]}
                                 key={item.id}
@@ -187,6 +195,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                                         </TouchableOpacity>
 
                                         <TouchableOpacity
+                                            onPress={() => handleDropItem(item.id)}
                                             activeOpacity={0.7}
                                         >
                                             <LinearGradient
@@ -226,7 +235,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                     <View style={{marginBottom: 145}}></View>
                 </ScrollView>
             </View>
-            {userBooks.length > 0 &&
+            {cartItems.length > 0 &&
             <View style={styles.floatingCard}>
                 <Text
                     style={{
