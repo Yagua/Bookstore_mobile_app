@@ -6,78 +6,134 @@ import {
     Image,
     TouchableOpacity,
     TextInput,
-    ActivityIndicator
 } from 'react-native';
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import UserService from '../service/UserService'
 import {AuthContext} from '../context/AuthContext'
+import UserService from '../service/UserService';
+import LoadingComponent from '../components/LoadingComponent';
+import ModalComponent from '../components/ModalComponent';
+import {generateModalBody} from '../../utils'
 import {APP_HOST} from '../../constants'
-import {profile} from '../../_testdata/profile'
 
 const ProfileScreen = ({navigation}) => {
 
-    let {userTokens} = useContext(AuthContext)
+    let {
+        userTokens,
+        generalUserInfo, setGeneralUserInfo,
+        secondaryUserInfo, setSecondaryUserInfo,
+    } = useContext(AuthContext)
     let [editGeneralInfo, setEditGeneralInfo] = useState(false)
     let [editSecondaryInfo, setEdiSecondaryInfo] = useState(false)
-    let [isLoading, setIsLoading] = useState(false)
+    let [changingGeneralInfo, setChangingGeneralInfo] = useState(false)
+    let [changingSecondaryInfo, setChangingSecondaryInfo] = useState(false)
     let [generalInfo, setGeneralInfo] = useState({
-        email: "",
-        first_name: "",
-        maternal_last_name: "",
-        paternal_last_name: "",
-        second_name: "",
-        username: "",
+        email: generalUserInfo.email,
+        first_name: generalUserInfo.first_name,
+        maternal_last_name: generalUserInfo.maternal_last_name,
+        paternal_last_name: generalUserInfo.paternal_last_name,
+        second_name: generalUserInfo.second_name,
+        username: generalUserInfo.username
     })
     let [secondaryInfo, setSecondaryInfo] = useState({
-        adress_line_1: "",
-        adress_line_2: "",
-        city: "",
-        country: "",
-        phone: "",
-        state_provice_region: "",
-        zip_code: "",
-        picture: null,
+        adress_line_1: secondaryUserInfo.adress_line_1,
+        adress_line_2: secondaryUserInfo.adress_line_2,
+        city: secondaryUserInfo.city,
+        country: secondaryUserInfo.country,
+        phone: secondaryUserInfo.phone,
+        state_provice_region: secondaryUserInfo.state_provice_region,
+        zip_code: secondaryUserInfo.zip_code,
+    })
+    let [modalVisible, setModalVisible] = useState(false);
+    let [modalSettings, setModalSettings] = useState({
+        title: '',
+        body: '',
+        acceptButtonTitle: '',
+        cancelButtonTitle: '',
+        isAlert: false
     })
 
-    useEffect(() => {
-        setIsLoading(true)
-        UserService.getUserProfile(userTokens.access)
-            .then(response => {
-                let {user, ...secondaryInformation} = response
-                setGeneralInfo((prevState) => ({
-                    ...prevState,
-                    email: user.email,
-                    first_name: user.first_name,
-                    maternal_last_name: user.maternal_last_name,
-                    paternal_last_name: user.paternal_last_name,
-                    second_name: user.second_name,
-                    username: user.username,
-                }))
-                setSecondaryInfo((prevState) => ({
-                    ...prevState,
-                    adress_line_1: secondaryInformation.adress_line_1,
-                    adress_line_2: secondaryInformation.adress_line_2,
-                    city: secondaryInformation.city,
-                    country: secondaryInformation.country,
-                    phone: secondaryInformation.phone,
-                    state_provice_region: secondaryInformation.state_provice_region,
-                    zip_code: secondaryInformation.zip_code,
-                    picture: secondaryInformation.picture,
-                }))
-                setIsLoading(false)
-            })
-            .catch(error => console.error(error))
-    }, [])
+    const handleOnChange = (handler, input, value) => {
+        value = value.trim()
+        handler((prevState) => ({ ...prevState, [input]: value }))
+    }
 
-    if(isLoading){
-        return (
-            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                <ActivityIndicator size="large"/>
-            </View>
-        );
+    const restoreInformation = (handler, data) => {
+        handler((prevState) => ({ ...prevState, ...data }))
+    }
+
+    const allowUpdateGI =
+        generalInfo.email.trim().length > 0 &&
+        generalInfo.first_name.trim().length > 0 &&
+        generalInfo.paternal_last_name.trim().length > 0 &&
+        generalInfo.username.trim().length > 0
+
+    const allowUpdateSI =
+        secondaryInfo.adress_line_1.trim().length > 0 &&
+        secondaryInfo.adress_line_2.trim().length > 0 &&
+        secondaryInfo.city.trim().length > 0 &&
+        secondaryInfo.country.trim().length > 0 &&
+        secondaryInfo.phone.trim().length > 0 &&
+        secondaryInfo.state_provice_region.trim().length > 0 &&
+        secondaryInfo.zip_code.trim().length > 0
+
+    const setUpModalSettings = (data) => {
+        let body = generateModalBody(data)
+        setModalSettings({
+            ...modalSettings,
+            title: "Error",
+            body: body,
+            cancelButtonTitle: "Okay",
+            isAlert: true
+        })
+    }
+
+    const updateGeneralInfo = async () => {
+        try {
+            setChangingGeneralInfo(true)
+            let response = await UserService.updateGeneralInfo(
+                userTokens.access,
+                generalInfo
+            )
+            setGeneralUserInfo((prevState) => ({
+                ...prevState,
+                ...response
+            }))
+        } catch (error) {
+            let responseItems = Object.entries(error.response.data)
+            setUpModalSettings(responseItems)
+            setModalVisible(true)
+
+        } finally {
+            setChangingGeneralInfo(false)
+            setEditGeneralInfo(false)
+            restoreInformation(setGeneralInfo, generalUserInfo)
+        }
+    }
+
+    const updateSecondaryInfo = async () => {
+        try {
+            setChangingSecondaryInfo(true)
+            let response = await UserService.updateContactLocationInfo(
+                userTokens.access,
+                secondaryInfo
+            )
+            setSecondaryUserInfo((prevState) => ({
+                ...prevState,
+                ...response
+            }))
+        } catch (error) {
+            let responseItems = Object.entries(error.response.data)
+            setUpModalSettings(responseItems)
+            setModalVisible(true)
+
+        } finally {
+            setChangingSecondaryInfo(false)
+            setEdiSecondaryInfo(false)
+            restoreInformation(setSecondaryInfo, secondaryUserInfo)
+        }
     }
 
     return (
@@ -109,8 +165,8 @@ const ProfileScreen = ({navigation}) => {
                         activeOpacity={0.7}
                     >
                         <Image
-                            source={secondaryInfo.picture
-                                ? {uri: `${APP_HOST}${secondaryInfo.picture}`}
+                            source={secondaryUserInfo.picture
+                                ? {uri: `${APP_HOST}${secondaryUserInfo.picture}`}
                                 : require("../assets/images/defaultUser.png")
                             }
                             style={styles.pictureProfile}
@@ -122,341 +178,478 @@ const ProfileScreen = ({navigation}) => {
                         fontSize: 25,
                         color: "#ffffff",
                     }}
-                    >{generalInfo.first_name} {generalInfo.paternal_last_name}</Text>
+                    >{generalUserInfo.first_name} {generalUserInfo.paternal_last_name}</Text>
                     <Text style={{
                         fontSize: 16,
                         color: "#D4D8D9",
                     }}
-                    >@{generalInfo.username}</Text>
+                    >@{generalUserInfo.username}</Text>
                 </View>
             </LinearGradient>
 
             <View style={{padding: 10, marginTop: 5, marginBottom: 15}}>
-                <View>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}
-                        >General Information</Text>
-                        <TouchableOpacity
-                            onPress={() => setEditGeneralInfo(true)}
-                        >
-                            <Text style={{
-                                fontStyle: "italic",
-                                textDecorationLine: "underline",
-                                color: "#507DBC"
-                            }}
-                            >Edit</Text>
-                        </TouchableOpacity>
-                    </View>
-
+                <LoadingComponent
+                    isLoading={changingGeneralInfo}
+                    style={{
+                        backgroundColor: "#E9EBE9",
+                        opacity: 0.5,
+                        borderRadius: 10,
+                    }}
+                >
                     <View>
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 15,
-                        }}>
-                            <Text style={styles.textInputLabel}>Username</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={generalInfo.username}
-                                placeholder={"Your username"}
-                                editable={editGeneralInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>Email</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={generalInfo.email}
-                                placeholder={"Your email"}
-                                editable={editGeneralInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>First Name</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={generalInfo.first_name}
-                                placeholder={"Your first name"}
-                                editable={editGeneralInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>Second Name</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={generalInfo.second_name}
-                                placeholder={"Your second name"}
-                                editable={editGeneralInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginVertical: 10
-                        }}>
-                            <Text style={styles.textInputLabel}>Paternal Last Name</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={generalInfo.paternal_last_name}
-                                placeholder={"Your paternal last name"}
-                                editable={editGeneralInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                        }}>
-                            <Text style={styles.textInputLabel}>Maternal Last Name</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={generalInfo.maternal_last_name}
-                                placeholder={"Your maternal last name"}
-                                editable={editGeneralInfo}
-                            />
-                        </View>
-                    </View>
-
-                    {editGeneralInfo &&
-                    <View style={styles.bottonsContainer}>
-                        <TouchableOpacity activeOpacity={0.7}>
-                            <LinearGradient
-                                colors={['#58A1E8', '#5485BE']}
-                                style={[styles.button, {
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    padding: 10,
-                                    justifyContent: "center"
-                                }]}
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.sectionTitle}
+                            >General Information</Text>
+                            <TouchableOpacity
+                                onPress={() => setEditGeneralInfo(true)}
                             >
-                                <Feather
-                                    name="save"
-                                    color="#ffffff"
-                                    size={15}
-                                />
                                 <Text style={{
-                                    color: "#ffffff",
-                                    fontWeight: "bold",
-                                    marginLeft: 5
-                                }}>Save</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
+                                    fontStyle: "italic",
+                                    textDecorationLine: "underline",
+                                    color: "#507DBC"
+                                }}
+                                >Edit</Text>
+                            </TouchableOpacity>
+                        </View>
 
-                        <TouchableOpacity
-                            activeOpacity={0.7}
-                            style={{marginLeft: 10}}
-                            onPress={() => setEditGeneralInfo(false)}
-                        >
-                            <LinearGradient
-                                colors={['#CF0F08', '#B82722']}
-                                style={[styles.button, {
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    padding: 10,
-                                    justifyContent: "center"
-                                }]}
+                        <View>
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 15,
+                            }}>
+                                <Text style={styles.textInputLabel}>Username</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={generalInfo.username}
+                                    placeholder={"Your username"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setGeneralInfo,
+                                            "username",
+                                            value
+                                        )
+                                    }
+                                    editable={editGeneralInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>Email</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={generalInfo.email}
+                                    placeholder={"Your email"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setGeneralInfo,
+                                            "email",
+                                            value
+                                        )
+                                    }
+                                    editable={editGeneralInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>First Name</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={generalInfo.first_name}
+                                    placeholder={"Your first name"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setGeneralInfo,
+                                            "first_name",
+                                            value
+                                        )
+                                    }
+                                    editable={editGeneralInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>Second Name</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={generalInfo.second_name}
+                                    placeholder={"Your second name"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setGeneralInfo,
+                                            "second_name",
+                                            value
+                                        )
+                                    }
+                                    editable={editGeneralInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginVertical: 10
+                            }}>
+                                <Text style={styles.textInputLabel}>Paternal Last Name</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={generalInfo.paternal_last_name}
+                                    placeholder={"Your paternal last name"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setGeneralInfo,
+                                            "paternal_last_name",
+                                            value
+                                        )
+                                    }
+                                    editable={editGeneralInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                            }}>
+                                <Text style={styles.textInputLabel}>Maternal Last Name</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={generalInfo.maternal_last_name}
+                                    placeholder={"Your maternal last name"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setGeneralInfo,
+                                            "maternal_last_name",
+                                            value
+                                        )
+                                    }
+                                    editable={editGeneralInfo}
+                                />
+                            </View>
+                        </View>
+
+                        {editGeneralInfo &&
+                        <View style={styles.bottonsContainer}>
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                onPress={updateGeneralInfo}
+                                disabled={!allowUpdateGI}
                             >
-                                <Feather
-                                    name="x-circle"
-                                    color="#ffffff"
-                                    size={15}
-                                />
-                                <Text style={{
-                                    color: "#ffffff",
-                                    fontWeight: "bold",
-                                    marginLeft: 5
-                                }}>Cancel</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
-                    </View>
-                    }
-                </View>
+                                <LinearGradient
+                                    colors={allowUpdateGI
+                                        ? ['#58A1E8', '#5485BE']
+                                        : ["#949EA0", "#75777B"]}
+                                    style={[styles.button, {
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        padding: 10,
+                                        justifyContent: "center"
+                                    }]}
+                                >
+                                    <Feather
+                                        name="save"
+                                        color="#ffffff"
+                                        size={15}
+                                    />
+                                    <Text style={{
+                                        color: "#ffffff",
+                                        fontWeight: "bold",
+                                        marginLeft: 5
+                                    }}>Save</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
 
-                <View style={{marginTop: 25}}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}
-                        >Contact & Location</Text>
-                        <TouchableOpacity
-                            onPress={() => setEdiSecondaryInfo(true)}
-                        >
-                            <Text style={{
-                                fontStyle: "italic",
-                                textDecorationLine: "underline",
-                                color: "#507DBC"
-                            }}
-                            >Edit</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View>
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 15,
-                        }}>
-                            <Text style={styles.textInputLabel}>Adress Line 1</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.adress_line_1}
-                                placeholder={"Adress line 1"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>Adress Line 2</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.adress_line_2}
-                                placeholder={"Adress line 2"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>Country</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.country}
-                                placeholder={"Country"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>City</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.city}
-                                placeholder={"City"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginTop: 10,
-                        }}>
-                            <Text style={styles.textInputLabel}>State/Province</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.state_province_region}
-                                placeholder={"State/Province/Region"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginVertical: 10
-                        }}>
-                            <Text style={styles.textInputLabel}>Zip Code</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.zip_code}
-                                placeholder={"Zip code"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-
-                        <View style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                        }}>
-                            <Text style={styles.textInputLabel}>Phone</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                defaultValue={secondaryInfo.phone}
-                                placeholder={"Your phone"}
-                                editable={editSecondaryInfo}
-                            />
-                        </View>
-                    </View>
-
-                    {editSecondaryInfo &&
-                    <View style={styles.bottonsContainer}>
-                        <TouchableOpacity activeOpacity={0.7}>
-                            <LinearGradient
-                                colors={['#58A1E8', '#5485BE']}
-                                style={[styles.button, {
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    padding: 10,
-                                    justifyContent: "center"
-                                }]}
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                style={{marginLeft: 10}}
+                                onPress={() => {
+                                    restoreInformation(setGeneralInfo, generalUserInfo)
+                                    setEditGeneralInfo(false)
+                                }}
                             >
-                                <Feather
-                                    name="save"
-                                    color="#ffffff"
-                                    size={15}
-                                />
-                                <Text style={{
-                                    color: "#ffffff",
-                                    fontWeight: "bold",
-                                    marginLeft: 5
-                                }}>Save</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            activeOpacity={0.7}
-                            style={{marginLeft: 10}}
-                            onPress={() => setEdiSecondaryInfo(false)}
-                        >
-                            <LinearGradient
-                                colors={['#CF0F08', '#B82722']}
-                                style={[styles.button, {
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    padding: 10,
-                                    justifyContent: "center"
-                                }]}
-                            >
-                                <Feather
-                                    name="x-circle"
-                                    color="#ffffff"
-                                    size={15}
-                                />
-                                <Text style={{
-                                    color: "#ffffff",
-                                    fontWeight: "bold",
-                                    marginLeft: 5
-                                }}>Cancel</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
+                                <LinearGradient
+                                    colors={['#CF0F08', '#B82722']}
+                                    style={[styles.button, {
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        padding: 10,
+                                        justifyContent: "center"
+                                    }]}
+                                >
+                                    <Feather
+                                        name="x-circle"
+                                        color="#ffffff"
+                                        size={15}
+                                    />
+                                    <Text style={{
+                                        color: "#ffffff",
+                                        fontWeight: "bold",
+                                        marginLeft: 5
+                                    }}>Cancel</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                        }
                     </View>
-                    }
-                </View>
+                </LoadingComponent>
+
+                <LoadingComponent
+                    isLoading={changingSecondaryInfo}
+                    style={{
+                        backgroundColor: "#E9EBE9",
+                        opacity: 0.5,
+                        borderRadius: 10,
+                    }}
+                >
+                    <View style={{marginTop: 25}}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.sectionTitle}
+                            >Contact & Location</Text>
+                            <TouchableOpacity
+                                onPress={() => setEdiSecondaryInfo(true)}
+                            >
+                                <Text style={{
+                                    fontStyle: "italic",
+                                    textDecorationLine: "underline",
+                                    color: "#507DBC"
+                                }}
+                                >Edit</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View>
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 15,
+                            }}>
+                                <Text style={styles.textInputLabel}>Adress Line 1</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.adress_line_1}
+                                    placeholder={"Adress line 1"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "adress_line_1",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>Adress Line 2</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.adress_line_2}
+                                    placeholder={"Adress line 2"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "adress_line_2",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>Country</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.country}
+                                    placeholder={"Country"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "country",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>City</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.city}
+                                    placeholder={"City"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "city",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginTop: 10,
+                            }}>
+                                <Text style={styles.textInputLabel}>State/Province</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.state_provice_region}
+                                    placeholder={"State/Province/Region"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "state_provice_region",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                marginVertical: 10
+                            }}>
+                                <Text style={styles.textInputLabel}>Zip Code</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.zip_code}
+                                    placeholder={"Zip code"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "zip_code",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                            }}>
+                                <Text style={styles.textInputLabel}>Phone</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    defaultValue={secondaryInfo.phone}
+                                    placeholder={"Your phone"}
+                                    onChangeText={(value) =>
+                                        handleOnChange(
+                                            setSecondaryInfo,
+                                            "phone",
+                                            value
+                                        )
+                                    }
+                                    editable={editSecondaryInfo}
+                                />
+                            </View>
+                        </View>
+
+                        {editSecondaryInfo &&
+                        <View style={styles.bottonsContainer}>
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                onPress={updateSecondaryInfo}
+                                disabled={!allowUpdateSI}
+                            >
+                                <LinearGradient
+                                    colors={allowUpdateSI
+                                        ? ['#58A1E8', '#5485BE']
+                                        : ["#949EA0", "#75777B"]}
+                                    style={[styles.button, {
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        padding: 10,
+                                        justifyContent: "center"
+                                    }]}
+                                >
+                                    <Feather
+                                        name="save"
+                                        color="#ffffff"
+                                        size={15}
+                                    />
+                                    <Text style={{
+                                        color: "#ffffff",
+                                        fontWeight: "bold",
+                                        marginLeft: 5
+                                    }}>Save</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                style={{marginLeft: 10}}
+                                onPress={() => {
+                                    restoreInformation(setSecondaryInfo, secondaryUserInfo)
+                                    setEdiSecondaryInfo(false)
+                                }}
+                            >
+                                <LinearGradient
+                                    colors={['#CF0F08', '#B82722']}
+                                    style={[styles.button, {
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        padding: 10,
+                                        justifyContent: "center"
+                                    }]}
+                                >
+                                    <Feather
+                                        name="x-circle"
+                                        color="#ffffff"
+                                        size={15}
+                                    />
+                                    <Text style={{
+                                        color: "#ffffff",
+                                        fontWeight: "bold",
+                                        marginLeft: 5
+                                    }}>Cancel</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                        }
+                    </View>
+                </LoadingComponent>
+                <ModalComponent
+                    title={modalSettings.title}
+                    body={modalSettings.body}
+                    isAlert={modalSettings.isAlert}
+                    modalVisible={modalVisible}
+                    setModalVisible={setModalVisible}
+                    acceptAction={() => {navigation.navigate('SignInScreen')}}
+                    acceptButtonTitle={modalSettings.acceptButtonTitle}
+                    cancelButtonTitle={modalSettings.cancelButtonTitle}
+                />
             </View>
         </ScrollView>
     );

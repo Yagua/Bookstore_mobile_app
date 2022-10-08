@@ -12,7 +12,7 @@ class UserService {
     }
 
     updateGeneralInfo(accessToken, data) {
-        return axios.put(API_BASE_URL + "/auth/users/me/", data, {
+        return axios.patch(API_BASE_URL + "/auth/users/me/", data, {
             headers: {
                 "Authorization": `JWT ${accessToken}`
             }

@@ -9,8 +9,6 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import BookComponent from '../components/BookComponent'
 import {APP_HOST} from '../../constants'
-// import SearchService from '../service/SearchService'
-// import {AuthContext} from '../context/AuthContext'
 
 const SearchResultScreen = ({navigation, route: {params}}) => {
     return (

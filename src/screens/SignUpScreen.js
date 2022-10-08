@@ -17,6 +17,7 @@ import * as Animatable from 'react-native-animatable';
 
 import ModalComponent from '../components/ModalComponent'
 import UserService from '../service/UserService'
+import {generateModalBody} from '../../utils'
 
 const SignUpScreen = ({navigation}) => {
     let [visiblePassword, setVisiblePassword] = useState(false);
@@ -102,17 +103,6 @@ const SignUpScreen = ({navigation}) => {
             cancelButtonTitle: "Okay",
             isAlert: true
         })
-
-        const generateModalBody = (data) => {
-            let result = ""
-            data.map(([key, value], index) => {
-                let title = `[${key.toUpperCase()}]`
-                let body = typeof value !== "string" ? value.join(" ") : value
-                result += `${title}\n${body}`
-                if(index !== data.length - 1) result += "\n\n"
-            })
-            return result
-        }
 
         let errors = Object.entries(validateFields())
         if(errors.length > 0) {

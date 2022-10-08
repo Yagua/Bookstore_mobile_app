@@ -5,9 +5,8 @@ import {
     ScrollView,
     Image,
     TouchableOpacity,
-    ActivityIndicator
 } from 'react-native';
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -82,6 +81,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                             {userCartInfo.items.map((item) => (
                                 <View
                                     style={[styles.cardContainer, {alignItems: "center"}]}
+                                    key={item.id}
                                 >
                                     <View>
                                         <Image

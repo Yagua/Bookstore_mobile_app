@@ -50,10 +50,11 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                 }
             )
             setUserCartInfo(cartInfo)
-            setIsBeingAdded(false)
             setIsBookAdded(true)
         } catch (error) {
             console.error(error)
+        } finally {
+            setIsBeingAdded(false)
         }
     }
 

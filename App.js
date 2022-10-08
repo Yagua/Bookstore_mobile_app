@@ -19,7 +19,8 @@ const Drawer = createDrawerNavigator();
 export default function App() {
 
     let [userTokens, setUserTokens] = useState(null)
-    let [userInfo, setUserInfo] = useState(null)
+    let [generalUserInfo, setGeneralUserInfo] = useState(null)
+    let [secondaryUserInfo, setSecondaryUserInfo] = useState(null)
     let [userCartInfo, setUserCartInfo] = useState(null)
 
     const retriveStoredInfo = async () => {
@@ -27,7 +28,9 @@ export default function App() {
             let retrivedData = await AsyncStorage.getItem("userInfo")
             if(!retrivedData) return
             let data = await JSON.parse(retrivedData)
-            setUserInfo(data.profile)
+            let {user, ...secondaryUserInfo} = data.profile
+            setGeneralUserInfo(user)
+            setSecondaryUserInfo(secondaryUserInfo)
             setUserCartInfo(data.userCartInfo)
             setUserTokens(data.tokens)
 
@@ -42,14 +45,15 @@ export default function App() {
 
 
     const signIn = async (data) => {
-        const userInfo = data.profile
+        const {user, ...secondaryUserInfo} = data.profile
         const tokens = data.tokens
         const userCartInfo = data.userCartInfo
 
         try {
             await AsyncStorage.setItem("userInfo", JSON.stringify(data))
             setUserCartInfo(userCartInfo)
-            setUserInfo(userInfo)
+            setGeneralUserInfo(user)
+            setSecondaryUserInfo(secondaryUserInfo)
             setUserTokens(tokens)
         } catch (error) {
             console.error(error)
@@ -60,7 +64,8 @@ export default function App() {
         try {
             await AsyncStorage.removeItem("userInfo")
             setUserTokens(null)
-            setUserInfo(null)
+            setGeneralUserInfo(null)
+            setSecondaryUserInfo(null)
             setUserCartInfo(null)
         } catch (error) {
             console.error(error)
@@ -71,12 +76,10 @@ export default function App() {
         <AuthContext.Provider value={{
             signIn,
             signOut,
-            userTokens,
-            setUserTokens,
-            userInfo,
-            setUserInfo,
-            userCartInfo,
-            setUserCartInfo,
+            userTokens, setUserTokens,
+            generalUserInfo, setGeneralUserInfo,
+            secondaryUserInfo, setSecondaryUserInfo,
+            userCartInfo, setUserCartInfo,
         }}>
             <NavigationContainer theme={DefaultTheme}>
                 {userTokens !== null ? (

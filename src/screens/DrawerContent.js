@@ -10,31 +10,12 @@ import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { AuthContext } from '../context/AuthContext';
-import UserService from '../service/UserService'
 
 const defaultProfileImage = require("../assets/images/defaultUser.png")
 import { NO_ACTION_AVAILABLE_MESSAGE, APP_HOST } from '../../constants'
 
 const DrawerContent = (props) => {
-    let { signOut, userTokens } = React.useContext(AuthContext)
-    let [userInfo, setUserInfo] = useState({
-        username: '',
-        first_name: '',
-        paternal_last_name: '',
-        picture: null,
-    })
-
-    useEffect(() => {
-        UserService.getUserProfile(userTokens.access)
-            .then(response => setUserInfo((prevState) => ({
-                ...prevState,
-                username: response.user.username,
-                first_name: response.user.first_name,
-                paternal_last_name: response.user.paternal_last_name,
-                picture: response.picture
-            })))
-            .catch(error => console.error(error))
-    }, [])
+    let { signOut, generalUserInfo, secondaryUserInfo } = React.useContext(AuthContext)
 
     return (
         <View style={{ flex: 1, marginTop: "-2%" }}>
@@ -47,8 +28,8 @@ const DrawerContent = (props) => {
                     >
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
                             <Image
-                                source={userInfo.picture
-                                    ? {uri: `${APP_HOST}${userInfo.picture}`}
+                                source={secondaryUserInfo.picture
+                                    ? {uri: `${APP_HOST}${secondaryUserInfo.picture}`}
                                     : defaultProfileImage
                                 }
                                 style={{height: 80, width: 80, borderRadius: 50}}
@@ -61,9 +42,9 @@ const DrawerContent = (props) => {
                                 }}
                             >
                                 <Title style={styles.title}>
-                                    {userInfo.first_name} {userInfo.paternal_last_name}
+                                    {generalUserInfo.first_name} {generalUserInfo.paternal_last_name}
                                 </Title>
-                                <Caption style={styles.caption}>@{userInfo.username}</Caption>
+                                <Caption style={styles.caption}>@{generalUserInfo.username}</Caption>
                             </View>
                         </View>
                     </LinearGradient>

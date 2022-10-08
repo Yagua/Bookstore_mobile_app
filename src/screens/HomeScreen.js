@@ -23,7 +23,7 @@ import {APP_HOST} from '../../constants'
 
 const HomeScreen = ({ navigation }) => {
 
-    let {userTokens, userCartInfo, userInfo} = useContext(AuthContext)
+    let {userTokens, userCartInfo, secondaryUserInfo} = useContext(AuthContext)
     let [isLoading, setIsLoading] = useState(false)
     let [bookSectionsAreLoading, setBookSectionsAreLoading] = useState(false)
     let [searchTerm, setSearchTerm] = useState('')
@@ -160,8 +160,8 @@ const HomeScreen = ({ navigation }) => {
                         activeOpacity={0.5}
                     >
                         <Image
-                            source={userInfo.picture
-                                ? {uri: `${APP_HOST}${userInfo.picture}`}
+                            source={secondaryUserInfo.picture
+                                ? {uri: `${APP_HOST}${secondaryUserInfo.picture}`}
                                 : require("../assets/images/defaultUser.png")
                             }
                             style={{ width: 38, height: 38, borderRadius: 25}}
