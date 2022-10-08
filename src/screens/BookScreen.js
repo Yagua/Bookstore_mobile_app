@@ -13,6 +13,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import {APP_HOST} from '../../constants'
 import ShoppingCartService from '../service/ShoppingCartService'
 import {AuthContext} from '../context/AuthContext'
+import LoadingComponent from '../components/LoadingComponent'
 
 const BookScreen = ({navigation, route: { params: {bookData} }}) => {
 
@@ -40,6 +41,7 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
     const addItemToCart = async (bookId, qty) => {
         try {
             setIsBeingAdded(true)
+            setIsBookAdded(false)
             let cartInfo = await ShoppingCartService.addItemToCart(
                 userTokens.access,
                 {
@@ -175,34 +177,40 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                     </View>
 
                     <View style={{marginTop: 20}}>
-                        {isBookAdded ?
-                            <View style={{
-                                borderWidth: 1,
-                                borderColor: "#ACE2A4",
-                                backgroundColor: "#CEEEC4",
-                                padding: 8,
+                        {isBookAdded &&
+                        <View style={{
+                            borderWidth: 1,
+                            borderColor: "#ACE2A4",
+                            backgroundColor: "#CEEEC4",
+                            padding: 8,
+                            borderRadius: 10,
+                            marginBottom: 10,
+                            justifyContent: "center",
+                            alignItems: "center"
+                        }}>
+                            <Text style={{
+                                fontSize: 16,
+                                fontStyle: "italic",
+                                color: "grey"
+                            }}
+                            >Item Added to Cart!</Text>
+                        </View>
+                        }
+                        <LoadingComponent
+                            isLoading={isBeingAdded}
+                            style={{
+                                backgroundColor: "#E9EBE9",
+                                opacity: 0.5,
                                 borderRadius: 10,
-                                marginBottom: 10,
-                                justifyContent: "center",
-                                alignItems: "center"
-                            }}>
-                                <Text style={{
-                                    fontSize: 16,
-                                    fontStyle: "italic",
-                                    color: "#7C837C"
-                                }}
-                                >Item Added to Cart!</Text>
-                            </View>
-                        :
+                            }}
+                        >
                             <View style={{
                                 borderWidth: 1,
                                 borderColor: "#B5BCBE",
                                 paddingTop: 10,
                                 paddingHorizontal: 15,
                                 borderRadius: 10,
-                                marginBottom: 10
                             }}>
-
                                 <Text style={{
                                     fontSize: 16,
                                     fontWeight: "500",
@@ -218,7 +226,6 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                                     >Quantity: </Text>
                                     <TouchableOpacity
                                         onPress={() => {handleQuantity("-")}}
-                                        disabled={isBeingAdded}
                                         activeOpacity={0.6}
                                         style={{
                                             borderWidth: 1,
@@ -245,7 +252,6 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
 
                                     <TouchableOpacity
                                         onPress={() => {handleQuantity("+")}}
-                                        disabled={isBeingAdded}
                                         activeOpacity={0.6}
                                         style={{
                                             borderWidth: 1,
@@ -282,7 +288,6 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
 
                                     <TouchableOpacity
                                         onPress={() => addItemToCart(bookData.id, bookQty)}
-                                        disabled={isBeingAdded}
                                         activeOpacity={0.8}
                                     >
                                         <LinearGradient
@@ -300,7 +305,7 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                        }
+                        </LoadingComponent>
                     </View>
 
                     <View style={{alignItems: "center"}}>

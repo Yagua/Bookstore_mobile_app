@@ -12,6 +12,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import ShoppingCartService from '../service/ShoppingCartService'
+import LoadingComponent from '../components/LoadingComponent'
 import {AuthContext} from '../context/AuthContext'
 import {APP_HOST} from '../../constants'
 import { trimText } from '../../utils';
@@ -31,19 +32,13 @@ const ShoppingCartScreen = ({ navigation }) => {
     }
 
     const handleDropItem = async (itemId) => {
+        setIsLoading(true)
         ShoppingCartService.deleteItemFromCart(userTokens.access, itemId)
             .then(response => {
                 setUserCartInfo(response)
+                setIsLoading(false)
             })
             .catch(error => console.error(error))
-    }
-
-    if(isLoading){
-        return (
-            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                <ActivityIndicator size="large"/>
-            </View>
-        );
     }
 
     return (
@@ -75,142 +70,150 @@ const ShoppingCartScreen = ({ navigation }) => {
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {userCartInfo.items.length > 0 ?
-                    <View>
-                        {userCartInfo.items.map((item) => (
-                            <View
-                                style={[styles.cardContainer, {alignItems: "center"}]}
-                                key={item.id}
-                            >
-                                <View>
-                                    <Image
-                                        source={item.book.cover
-                                            ? {uri: `${APP_HOST}${item.book.cover}`}
-                                            : require("../assets/images/defaultBook.png")
-                                        }
-                                        style={styles.bookImage}
-                                    />
-                                </View>
-                                <View style={{ paddingLeft: 8, paddingRight: 5, flex: 1 }}>
-                                    <Text
-                                        style={{
-                                            fontSize: 17,
-                                            fontWeight: 'bold',
-                                            marginBottom: 5,
-                                        }}
-                                    >
-                                        {trimText(item.book.title, 20)}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            fontSize: 16,
-                                            marginBottom: 5
-                                        }}
-                                    >Total: ${(item.quantity * item.book.price).toFixed(2)}</Text>
-                                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            fontWeight: "500",
-                                        }}
-                                        >Qty: </Text>
-                                        <TouchableOpacity
-                                            onPress={() => {handleQuantity("-")}}
-                                            activeOpacity={0.6}
+                    <LoadingComponent
+                        isLoading={isLoading}
+                        style={{
+                            backgroundColor: "#E9EBE9",
+                            opacity: 0.5,
+                            borderRadius: 10,
+                        }}
+                    >
+                        <View>
+                            {userCartInfo.items.map((item) => (
+                                <View
+                                    style={[styles.cardContainer, {alignItems: "center"}]}
+                                >
+                                    <View>
+                                        <Image
+                                            source={item.book.cover
+                                                ? {uri: `${APP_HOST}${item.book.cover}`}
+                                                : require("../assets/images/defaultBook.png")
+                                            }
+                                            style={styles.bookImage}
+                                        />
+                                    </View>
+                                    <View style={{ paddingLeft: 8, paddingRight: 5, flex: 1 }}>
+                                        <Text
                                             style={{
-                                                borderWidth: 1,
-                                                borderColor: '#cccccc',
-                                                padding: 5
+                                                fontSize: 17,
+                                                fontWeight: 'bold',
+                                                marginBottom: 5,
                                             }}
                                         >
-                                            <Feather
-                                                name="minus"
-                                                color="#507DBC"
-                                                size={20}
-                                            />
-                                        </TouchableOpacity>
-
-                                        <Text style={{
-                                            borderTopWidth: 1,
-                                            borderBottomWidth: 1,
-                                            borderColor: '#cccccc',
-                                            paddingVertical: 4,
-                                            paddingHorizontal: 20,
-                                            color: 'grey',
-                                            fontSize: 17,
-                                        }}>{bookQty}</Text>
-
-                                        <TouchableOpacity
-                                            onPress={() => {handleQuantity("+")}}
-                                            activeOpacity={0.6}
+                                            {trimText(item.book.title, 20)}
+                                        </Text>
+                                        <Text
                                             style={{
-                                                borderWidth: 1,
-                                                borderColor: '#cccccc',
-                                                padding: 5
+                                                fontSize: 16,
+                                                marginBottom: 5
                                             }}
-                                        >
-                                            <Feather
-                                                name="plus"
-                                                color="#507DBC"
-                                                size={20}
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={{flexDirection: "row"}}>
-                                        <TouchableOpacity
-                                            activeOpacity={0.7}
-                                        >
-                                            <LinearGradient
-                                                colors={['#58A1E8', '#5485BE']}
-                                                style={[styles.button, {
-                                                    marginRight: 8,
-                                                    marginVertical: 15,
-                                                    flexDirection: "row",
-                                                    alignItems: "center"
-                                                }]}
+                                        >Total: ${(item.quantity * item.book.price).toFixed(2)}</Text>
+                                        <View style={{flexDirection: "row", alignItems: "center"}}>
+                                            <Text style={{
+                                                fontSize: 16,
+                                                fontWeight: "500",
+                                            }}
+                                            >Qty: </Text>
+                                            <TouchableOpacity
+                                                onPress={() => {handleQuantity("-")}}
+                                                activeOpacity={0.6}
+                                                style={{
+                                                    borderWidth: 1,
+                                                    borderColor: '#cccccc',
+                                                    padding: 5
+                                                }}
                                             >
                                                 <Feather
-                                                    name="shopping-bag"
-                                                    color="#ffffff"
-                                                    size={15}
+                                                    name="minus"
+                                                    color="#507DBC"
+                                                    size={20}
                                                 />
-                                                <Text style={{
-                                                    color: "#ffffff",
-                                                    fontWeight: "bold",
-                                                    marginLeft: 5
-                                                }}>Buy Now</Text>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
+                                            </TouchableOpacity>
 
-                                        <TouchableOpacity
-                                            onPress={() => handleDropItem(item.id)}
-                                            activeOpacity={0.7}
-                                        >
-                                            <LinearGradient
-                                                colors={['#CF0F08', '#B82722']}
-                                                style={[styles.button, {
-                                                    marginRight: 8,
-                                                    marginVertical: 15,
-                                                    flexDirection: "row",
-                                                    alignItems: "center"
-                                                }]}
+                                            <Text style={{
+                                                borderTopWidth: 1,
+                                                borderBottomWidth: 1,
+                                                borderColor: '#cccccc',
+                                                paddingVertical: 4,
+                                                paddingHorizontal: 20,
+                                                color: 'grey',
+                                                fontSize: 17,
+                                            }}>{item.quantity}</Text>
+
+                                            <TouchableOpacity
+                                                onPress={() => {handleQuantity("+")}}
+                                                activeOpacity={0.6}
+                                                style={{
+                                                    borderWidth: 1,
+                                                    borderColor: '#cccccc',
+                                                    padding: 5
+                                                }}
                                             >
                                                 <Feather
-                                                    name="trash-2"
-                                                    color="#ffffff"
-                                                    size={15}
+                                                    name="plus"
+                                                    color="#507DBC"
+                                                    size={20}
                                                 />
-                                                <Text style={{
-                                                    color: "#ffffff",
-                                                    fontWeight: "bold",
-                                                    marginLeft: 5
-                                                }}>Drop</Text>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{flexDirection: "row"}}>
+                                            <TouchableOpacity
+                                                activeOpacity={0.7}
+                                            >
+                                                <LinearGradient
+                                                    colors={['#58A1E8', '#5485BE']}
+                                                    style={[styles.button, {
+                                                        marginRight: 8,
+                                                        marginVertical: 15,
+                                                        flexDirection: "row",
+                                                        alignItems: "center"
+                                                    }]}
+                                                >
+                                                    <Feather
+                                                        name="shopping-bag"
+                                                        color="#ffffff"
+                                                        size={15}
+                                                    />
+                                                    <Text style={{
+                                                        color: "#ffffff",
+                                                        fontWeight: "bold",
+                                                        marginLeft: 5
+                                                    }}>Buy Now</Text>
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                onPress={() => handleDropItem(item.id)}
+                                                activeOpacity={0.7}
+                                            >
+                                                <LinearGradient
+                                                    colors={['#CF0F08', '#B82722']}
+                                                    style={[styles.button, {
+                                                        marginRight: 8,
+                                                        marginVertical: 15,
+                                                        flexDirection: "row",
+                                                        alignItems: "center"
+                                                    }]}
+                                                >
+                                                    <Feather
+                                                        name="trash-2"
+                                                        color="#ffffff"
+                                                        size={15}
+                                                    />
+                                                    <Text style={{
+                                                        color: "#ffffff",
+                                                        fontWeight: "bold",
+                                                        marginLeft: 5
+                                                    }}>Drop</Text>
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                        ))
-                        }
-                    </View>
+                            ))
+                            }
+                        </View>
+                    </LoadingComponent>
                         :
                     <View style={{alignItems: "center"}}>
                         <Text style={{fontStyle: "italic"}}>
