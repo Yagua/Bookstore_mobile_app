@@ -14,7 +14,7 @@ import ShoppingCartService from '../service/ShoppingCartService'
 import LoadingComponent from '../components/LoadingComponent'
 import {AuthContext} from '../context/AuthContext'
 import {APP_HOST} from '../../constants'
-import { trimText } from '../../utils';
+import { trimText, updateStoredData } from '../../utils';
 
 const ShoppingCartScreen = ({ navigation }) => {
 
@@ -32,13 +32,19 @@ const ShoppingCartScreen = ({ navigation }) => {
     }
 
     const handleDropItem = async (itemId) => {
-        setIsLoading(true)
-        ShoppingCartService.deleteItemFromCart(userTokens.access, itemId)
-            .then(response => {
-                setUserCartInfo(response)
-                setIsLoading(false)
-            })
-            .catch(error => console.error(error))
+        try {
+            setIsLoading(true)
+            let response = await ShoppingCartService.deleteItemFromCart(
+                userTokens.access,
+                itemId
+            )
+            setUserCartInfo(response)
+            await updateStoredData("userInfo", { shoppingCart: response })
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (

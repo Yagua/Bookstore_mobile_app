@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 
 import {APP_HOST} from '../../constants'
+import {updateStoredData} from '../../utils'
 import ShoppingCartService from '../service/ShoppingCartService'
 import {AuthContext} from '../context/AuthContext'
 import LoadingComponent from '../components/LoadingComponent'
@@ -50,6 +51,7 @@ const BookScreen = ({navigation, route: { params: {bookData} }}) => {
                 }
             )
             setUserCartInfo(cartInfo)
+            await updateStoredData("userInfo", { shoppingCart: cartInfo })
             setIsBookAdded(true)
         } catch (error) {
             console.error(error)

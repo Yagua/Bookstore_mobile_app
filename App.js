@@ -28,10 +28,9 @@ export default function App() {
             let retrivedData = await AsyncStorage.getItem("userInfo")
             if(!retrivedData) return
             let data = await JSON.parse(retrivedData)
-            let {user, ...secondaryUserInfo} = data.profile
-            setGeneralUserInfo(user)
-            setSecondaryUserInfo(secondaryUserInfo)
-            setUserCartInfo(data.userCartInfo)
+            setGeneralUserInfo(data.generalUserInfo)
+            setSecondaryUserInfo(data.secondaryUserInfo)
+            setUserCartInfo(data.shoppingCart)
             setUserTokens(data.tokens)
 
         } catch (error) {
@@ -50,11 +49,16 @@ export default function App() {
         const userCartInfo = data.userCartInfo
 
         try {
-            await AsyncStorage.setItem("userInfo", JSON.stringify(data))
             setUserCartInfo(userCartInfo)
             setGeneralUserInfo(user)
             setSecondaryUserInfo(secondaryUserInfo)
             setUserTokens(tokens)
+            await AsyncStorage.setItem("userInfo", JSON.stringify({
+                generalUserInfo: user,
+                secondaryUserInfo: secondaryUserInfo,
+                shoppingCart: userCartInfo,
+                tokens: tokens
+            }))
         } catch (error) {
             console.error(error)
         }

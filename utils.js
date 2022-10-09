@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
 export const trimText = (title, lenght) => {
     if (title.length > lenght) {
         let newTitle = title.substring(0, lenght);
@@ -5,7 +7,6 @@ export const trimText = (title, lenght) => {
     }
     return title;
 }
-
 
 export const generateModalBody = (data) => {
     let result = ""
@@ -18,3 +19,14 @@ export const generateModalBody = (data) => {
     return result
 }
 
+export const updateStoredData = async (storedItem, newData) => {
+    try {
+        let retrivedData = await AsyncStorage.getItem(storedItem)
+        if(!retrivedData) return
+        let data = await JSON.parse(retrivedData)
+        let updated = { ...data, ...newData }
+        await AsyncStorage.setItem(storedItem, JSON.stringify(updated))
+    } catch (error) {
+        console.error(error)
+    }
+}

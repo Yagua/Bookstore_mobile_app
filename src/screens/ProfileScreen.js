@@ -18,7 +18,7 @@ import {AuthContext} from '../context/AuthContext'
 import UserService from '../service/UserService';
 import LoadingComponent from '../components/LoadingComponent';
 import ModalComponent from '../components/ModalComponent';
-import {generateModalBody} from '../../utils'
+import {generateModalBody, updateStoredData} from '../../utils'
 import {APP_HOST} from '../../constants'
 
 const ProfileScreen = ({navigation}) => {
@@ -108,6 +108,12 @@ const ProfileScreen = ({navigation}) => {
                 ...prevState,
                 picture: response.picture
             }))
+            await updateStoredData("userInfo", {
+                secondaryUserInfo: {
+                    ...secondaryInfo,
+                    picture: response.picture
+                }
+            })
         } catch (error) {
             console.error(error)
         } finally {
@@ -159,6 +165,7 @@ const ProfileScreen = ({navigation}) => {
             )
             setGeneralInfo((prevState) => ({ ...prevState, ...response }))
             setGeneralUserInfo((prevState) => ({ ...prevState, ...response }))
+            await updateStoredData("userInfo", { generalUserInfo: generalInfo})
         } catch (error) {
             let responseItems = Object.entries(error.response.data)
             setUpModalSettings(responseItems)
@@ -181,6 +188,7 @@ const ProfileScreen = ({navigation}) => {
             )
             setSecondaryInfo((prevState) => ({ ...prevState, ...response }))
             setSecondaryUserInfo((prevState) => ({ ...prevState, ...response }))
+            await updateStoredData("userInfo", {secondaryUserInfo: secondaryInfo})
         } catch (error) {
             let responseItems = Object.entries(error.response.data)
             setUpModalSettings(responseItems)
