@@ -27,6 +27,15 @@ class UserService {
         }).then(response => response.data)
     }
 
+    updatePictureProfile(accessToken, data) {
+        return axios.patch(API_BASE_URL + "/profile/update/", data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                "Authorization": `JWT ${accessToken}`
+            }
+        }).then(response => response.data)
+    }
+
     createNewUser(user) {
         return axios.post(API_BASE_URL + "/auth/users/", user)
             .then(response => response.data)

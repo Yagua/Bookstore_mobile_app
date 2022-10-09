@@ -6,10 +6,13 @@ import {
     Image,
     TouchableOpacity,
     TextInput,
+    Platform,
 } from 'react-native';
 import { useState, useContext } from 'react'
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
+import FormData from 'form-data';
+import * as ImagePicker from 'expo-image-picker';
 
 import {AuthContext} from '../context/AuthContext'
 import UserService from '../service/UserService';
@@ -29,6 +32,7 @@ const ProfileScreen = ({navigation}) => {
     let [editSecondaryInfo, setEdiSecondaryInfo] = useState(false)
     let [changingGeneralInfo, setChangingGeneralInfo] = useState(false)
     let [changingSecondaryInfo, setChangingSecondaryInfo] = useState(false)
+    let [changingPictureProfile, setChangingPictureProfile] = useState(false)
     let [generalInfo, setGeneralInfo] = useState({
         email: generalUserInfo.email,
         first_name: generalUserInfo.first_name,
@@ -56,6 +60,60 @@ const ProfileScreen = ({navigation}) => {
         cancelButtonTitle: '',
         isAlert: false
     })
+
+    const getFormData = (data) => {
+        const form = new FormData()
+        const file = data.uri.substring(data.uri.lastIndexOf("/") + 1)
+        const fext = file.substring(file.lastIndexOf(".") + 1)
+
+        form.append("picture", {
+            uri: data.uri,
+            type: `${data.type}/${fext}`,
+            name: file
+        })
+
+        return form
+    }
+
+    const pickImage = async () => {
+        try {
+            if (Platform.OS !== 'web') {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') return
+            }
+
+            let fileInfo = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 4],
+                quality: 1,
+            });
+            if (!fileInfo.cancelled) return fileInfo
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const updatePictureProfile = async () => {
+        try {
+            let fileInfo = await pickImage()
+            if(!fileInfo) return
+            let data =  getFormData(fileInfo)
+            setChangingPictureProfile(true)
+            let response = await UserService.updatePictureProfile(
+                userTokens.access,
+                data
+            )
+            setSecondaryUserInfo((prevState) => ({
+                ...prevState,
+                picture: response.picture
+            }))
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setChangingPictureProfile(false)
+        }
+    }
 
     const handleOnChange = (handler, input, value) => {
         value = value.trim()
@@ -162,14 +220,24 @@ const ProfileScreen = ({navigation}) => {
                 }}>
                     <TouchableOpacity
                         activeOpacity={0.7}
+                        onLongPress={updatePictureProfile}
                     >
-                        <Image
-                            source={secondaryUserInfo.picture
-                                ? {uri: `${APP_HOST}${secondaryUserInfo.picture}`}
-                                : require("../assets/images/defaultUser.png")
-                            }
-                            style={styles.pictureProfile}
-                        />
+                        <LoadingComponent
+                            isLoading={changingPictureProfile}
+                            style={{
+                                backgroundColor: "#E9EBE9",
+                                opacity: 0.5,
+                                borderRadius: 100,
+                            }}
+                        >
+                            <Image
+                                source={secondaryUserInfo.picture
+                                    ? {uri: `${APP_HOST}${secondaryUserInfo.picture}`}
+                                    : require("../assets/images/defaultUser.png")
+                                }
+                                style={styles.pictureProfile}
+                            />
+                        </LoadingComponent>
                     </TouchableOpacity>
                     <Text style={{
                         marginTop: 10,
