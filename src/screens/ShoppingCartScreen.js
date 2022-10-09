@@ -21,6 +21,7 @@ const ShoppingCartScreen = ({ navigation }) => {
     let {userTokens, userCartInfo, setUserCartInfo} = useContext(AuthContext)
     let [bookQty, setBookQty] = useState(1)
     let [isLoading, setIsLoading] = useState(false)
+    let totalOrder = 0
 
     const handleQuantity = (action) => {
         if(action === "+") {
@@ -78,7 +79,9 @@ const ShoppingCartScreen = ({ navigation }) => {
                         }}
                     >
                         <View>
-                            {userCartInfo.items.map((item) => (
+                            {userCartInfo.items.map((item) => {
+                                totalOrder += (item.quantity * item.book.price)
+                                return (
                                 <View
                                     style={[styles.cardContainer, {alignItems: "center"}]}
                                     key={item.id}
@@ -210,7 +213,8 @@ const ShoppingCartScreen = ({ navigation }) => {
                                         </View>
                                     </View>
                                 </View>
-                            ))
+                            )
+                            })
                             }
                         </View>
                     </LoadingComponent>
@@ -231,7 +235,7 @@ const ShoppingCartScreen = ({ navigation }) => {
                         marginBottom: 5,
                         fontSize: 16
                     }}
-                >Total order: $1</Text>
+                >Total order: ${totalOrder.toFixed(2)}</Text>
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={{width: "70%"}}

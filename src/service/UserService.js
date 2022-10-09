@@ -20,7 +20,7 @@ class UserService {
     }
 
     updateContactLocationInfo(accessToken, data) {
-        return axios.put(API_BASE_URL + "/profile/update/", data, {
+        return axios.patch(API_BASE_URL + "/profile/update/", data, {
             headers: {
                 "Authorization": `JWT ${accessToken}`
             }

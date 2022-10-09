@@ -45,7 +45,9 @@ const ProfileScreen = ({navigation}) => {
         phone: secondaryUserInfo.phone,
         state_provice_region: secondaryUserInfo.state_provice_region,
         zip_code: secondaryUserInfo.zip_code,
+        picture: secondaryUserInfo.picture,
     })
+
     let [modalVisible, setModalVisible] = useState(false);
     let [modalSettings, setModalSettings] = useState({
         title: '',
@@ -97,42 +99,39 @@ const ProfileScreen = ({navigation}) => {
                 userTokens.access,
                 generalInfo
             )
-            setGeneralUserInfo((prevState) => ({
-                ...prevState,
-                ...response
-            }))
+            setGeneralInfo((prevState) => ({ ...prevState, ...response }))
+            setGeneralUserInfo((prevState) => ({ ...prevState, ...response }))
         } catch (error) {
             let responseItems = Object.entries(error.response.data)
             setUpModalSettings(responseItems)
             setModalVisible(true)
+            restoreInformation(setGeneralInfo, generalUserInfo)
 
         } finally {
             setChangingGeneralInfo(false)
             setEditGeneralInfo(false)
-            restoreInformation(setGeneralInfo, generalUserInfo)
         }
     }
 
     const updateSecondaryInfo = async () => {
         try {
             setChangingSecondaryInfo(true)
+            let {picture, ...sInfo } = secondaryInfo
             let response = await UserService.updateContactLocationInfo(
                 userTokens.access,
-                secondaryInfo
+                sInfo
             )
-            setSecondaryUserInfo((prevState) => ({
-                ...prevState,
-                ...response
-            }))
+            setSecondaryInfo((prevState) => ({ ...prevState, ...response }))
+            setSecondaryUserInfo((prevState) => ({ ...prevState, ...response }))
         } catch (error) {
             let responseItems = Object.entries(error.response.data)
             setUpModalSettings(responseItems)
             setModalVisible(true)
+            restoreInformation(setSecondaryInfo, secondaryUserInfo)
 
         } finally {
             setChangingSecondaryInfo(false)
             setEdiSecondaryInfo(false)
-            restoreInformation(setSecondaryInfo, secondaryUserInfo)
         }
     }
 
