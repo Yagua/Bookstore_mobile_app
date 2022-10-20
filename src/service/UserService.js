@@ -40,6 +40,11 @@ class UserService {
         return axios.post(API_BASE_URL + "/auth/users/", user)
             .then(response => response.data)
     }
+
+    restoreUserPassword(payload) {
+        return axios.post(API_BASE_URL + "/auth/users/reset_password/", payload)
+            .then(response => response.data)
+    }
 }
 
 export default new UserService()

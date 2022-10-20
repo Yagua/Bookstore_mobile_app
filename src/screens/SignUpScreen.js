@@ -80,7 +80,7 @@ const SignUpScreen = ({navigation}) => {
 
     const validateFields = () => {
         let errors = {}
-        if(!userData.email.match(/^\S+.\S+@\S+.\S+$/)) {
+        if(!userData.email.match(/^\S+(.\S+)?@\S+.\S+$/)) {
             errors.email = "The email has an incorrect format"
         }
         if(userData.password !== userData.re_password) {
@@ -337,10 +337,6 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 30,
         paddingHorizontal: 28,
         paddingVertical: 10,
-    },
-    logo: {
-        width: '100%',
-        height: '80%',
     },
     title: {
         color: '#ffffff',

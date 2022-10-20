@@ -165,6 +165,7 @@ const SignInScreen = ({ navigation }) => {
                     </View>
 
                     <TouchableOpacity
+                        onPress={() => navigation.navigate("RestorePassword")}
                         style={{
                             justifyContent: 'center',
                             alignItems: 'center',

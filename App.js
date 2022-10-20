@@ -1,10 +1,9 @@
-import {useState, useEffect, useReducer, useMemo } from 'react'
+import {useState, useEffect} from 'react'
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 
 import RootStackScreen from "./src/screens/RootStackScreen"
 import { AuthContext } from "./src/context/AuthContext"
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { Text, View, ActivityIndicator } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import HomeScreen from './src/screens/HomeScreen';
